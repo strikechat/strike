@@ -1,5 +1,7 @@
 import { getModelForClass, prop, pre} from '@typegoose/typegoose';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 
 @pre<User>('save', async function() {
   if (this.isModified('password')) {
@@ -7,6 +9,7 @@ import bcrypt from 'bcrypt';
   }
 })
 class User {
+  public _id! : mongoose.Types.ObjectId;
   @prop({ required: true })
   public username! : string;
   @prop({ required: true })
@@ -20,6 +23,14 @@ class User {
 
   public async checkPassword(password: string) {
     return await bcrypt.compare(password, this.password);
+  }
+
+  public generateJWT() {
+    return jwt.sign(
+      { id: this._id, username: this.username, email: this.email },
+      process.env.STRIKE_JWT_SECRET ?? 'secret',
+      { expiresIn: '6h' } 
+    );
   }
 }
 
