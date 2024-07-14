@@ -4,7 +4,8 @@
     "paths": {
       "@models/*": ["src/modules/database/models/*"],
       "@schemas/*": ["src/modules/common/schemas/*"],
-      "@utils/*": ["src/modules/common/utils/*"]
+      "@utils/*": ["src/modules/common/utils/*"],
+      "@enums/*": ["src/modules/common/enums/*"]
     },
     "target": "es6",
     "module": "commonjs",
