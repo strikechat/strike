@@ -14,8 +14,10 @@ app.use(express.json());
 app.use(getUserFromToken);
 
 import AuthRoutes from './modules/auth/routes';
+import ServerRoutes from './modules/server/routes';
 
 app.use('/auth', AuthRoutes);
+app.use('/server', ServerRoutes);
 
 app.listen(process.env.STRIKE_API_PORT ?? 3000, async () => {
   Logger.info(`Server is running on port ${process.env.STRIKE_API_PORT ?? 3000}`);

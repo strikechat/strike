@@ -12,7 +12,7 @@ class ServerChannel {
     @prop({ required: true })
     public server!: Ref<Server>;
 
-    @prop({ required: true })
+    @prop({ default: Date.now })
     public createdAt!: Date;
 
     @prop({ required: true })
