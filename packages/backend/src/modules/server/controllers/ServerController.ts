@@ -50,4 +50,17 @@ export class ServerController {
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
+
+    public static async getAllCurrentUserServers(req: Request, res: Response): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const allUserMembers = await ServerMemberModel.find({ user: user._id! }).populate('server');
+            const allUserServers = allUserMembers.map(member => member.server);
+
+            return res.status(200).json({ servers: allUserServers });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 }
