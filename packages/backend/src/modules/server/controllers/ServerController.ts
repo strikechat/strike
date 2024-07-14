@@ -63,4 +63,26 @@ export class ServerController {
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
+
+    public static async deleteServer(req: Request, res: Response): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+
+            const server = await ServerModel.findById(serverId);
+
+            if (!serverId || !server || server.owner.toString() !== user._id.toString())
+                return res.status(404).json({ message: 'Server not found' });
+
+            await ServerModel.findByIdAndDelete(serverId);
+
+            await ServerChannelModel.deleteMany({ server: serverId });
+            await ServerMemberModel.deleteMany({ server: serverId });
+
+            return res.status(200).json({ message: 'Server deleted successfully' });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 }

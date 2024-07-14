@@ -8,5 +8,6 @@ router.use(requireLoggedIn());
 
 router.post('/', ServerController.createServer);
 router.get('/@me', ServerController.getAllCurrentUserServers);
+router.delete('/:serverId', ServerController.deleteServer);
 
 export default router;
