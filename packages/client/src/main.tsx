@@ -10,6 +10,8 @@ import { ServerLayout } from './components/ServerLayout.tsx';
 import { ChannelView } from './components/ChannelView.tsx';
 import { ModalProvider } from './lib/context/ModalContext.tsx';
 import { Modal } from './components/Modal.tsx';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './i18n.ts';
 
 const routes = createBrowserRouter([
   {
@@ -50,9 +52,11 @@ const routes = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <ModalProvider>
-      <Modal/>
-      <RouterProvider router={routes} />
-    </ModalProvider>
+    <I18nextProvider i18n={i18n}>
+      <ModalProvider>
+        <Modal />
+        <RouterProvider router={routes} />
+      </ModalProvider>
+    </I18nextProvider>
   </React.StrictMode>
 );

@@ -10,20 +10,18 @@ import { FaBoltLightning } from "react-icons/fa6";
 import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useModal } from "../lib/context/ModalContext";
+import { useTranslation } from "react-i18next";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
     const { showModal } = useModal();
-
-    const test = () => {
-        showModal((<>Test</>))
-    }
+    const { t } = useTranslation();
 
     return (
         <Menu as="div" className="py-4 px-2 bg-gradient-to-bl from-gray-800 to-gray-900">
             <MenuButton className="flex items-center justify-between w-full text-white">
                 <div className="flex items-center gap-2">
                     {isOfficialServer && (
-                        <Tooltip content="Official Server">
+                        <Tooltip content={t('app.server_header.badges.official_server')}>
                             <span className="bg-gradient-to-tr from-gray-600 to-gray-700 flex items-center justify-center h-8 w-8 rounded-full text-sm text-yellow-300">
                                 <FaBoltLightning />
                             </span>
@@ -37,15 +35,15 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
             <MenuItems className="absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none">
                 <div className="py-1">
                     <MenuItem>
-                        <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full" onClick={test}>
-                            <MdWavingHand /> Create invite
+                        <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full">
+                            <MdWavingHand /> {t('app.server_header.actions.create_invite')}
                         </button>
                     </MenuItem>
                     <hr className="border-gray-700" />
                     <MenuItem>
                         <button className="block px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2">
                             {isOwner ? <FaRegTrashAlt /> : <FaDoorOpen />}
-                            {isOwner ? "Delete server" : "Leave server"}
+                            {isOwner ? t('app.server_header.actions.delete_server') : t('app.server_header.actions.leave_server')}
                         </button>
                     </MenuItem>
                 </div>
