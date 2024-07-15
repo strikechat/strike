@@ -112,6 +112,17 @@ export class MessageController {
 
             message.pinned = !message.pinned;
             await message.save();
+
+            await MessageModel.create({
+                author: null,
+                isSystem: true,
+                content: `${user.username} ${message.pinned ? 'pinned' : 'unpinned'} message.`,
+                server: message.server,
+                channel: message.channel,
+                createdAt: new Date(),
+                pinned: false
+            })
+
             return res.status(200).json({ message })
         } catch(e) {
             Logger.error(String(e))

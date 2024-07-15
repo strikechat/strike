@@ -10,7 +10,7 @@ class Message {
     @prop({ required: true })
     public content!: string;
 
-    @prop({ required: true, ref: () => User })
+    @prop({ required: false, ref: () => User })
     public author!: Ref<User>;
 
     @prop({ required: true, ref: () => Server })
@@ -24,6 +24,9 @@ class Message {
 
     @prop({ default: Date.now })
     public createdAt!: Date;
+
+    @prop({ default: false })
+    public isSystem!: boolean;
 }
 
 const MessageModel = getModelForClass(Message);

@@ -10,6 +10,6 @@ router.get('/:serverId/:channelId', MessageController.fetchMessages);
 router.post('/', MessageController.createMessage);
 router.delete('/:messageId', MessageController.deleteMessage);
 router.put('/:messageId', MessageController.editMessage);
-router.post('/:messageId/pin', MessageController.pinMessage);
+router.put('/:messageId/pin', MessageController.pinMessage);
 
 export default router;

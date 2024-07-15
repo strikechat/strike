@@ -20,4 +20,14 @@ export class MessageController {
             return null;
         }
     }
+
+    static async pinMessage(messageId: string) {
+        try {
+            const res = await AxiosInstance.put(`/messages/${messageId}/pin`);
+            return res.data.message;
+        } catch (e) {
+            console.log(e);
+            return null;
+        }
+    }
 }

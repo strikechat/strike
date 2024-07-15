@@ -55,7 +55,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
 }
 
 export const ServerLayout = () => {
-    const { serverId } = useParams();
+    const { serverId, channelId } = useParams();
     const [channels, setChannels] = useState<any[]>([]);
     const [server, setServer] = useState<any>({});
     const cachedUser = useCachedUser();
@@ -77,7 +77,7 @@ export const ServerLayout = () => {
                         <Link
                             key={channel._id}
                             to={`/server/${serverId}/channel/${channel._id}`}
-                            className="block py-2 px-4 hover:bg-gray-800 flex flex-row items-center gap-2"
+                            className={`block py-2 px-4 hover:bg-gray-800 flex flex-row items-center gap-2 ${channel._id === channelId ? "bg-black/30" : ""}`}
                         >
                             {ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]} {channel.name}
                         </Link>
