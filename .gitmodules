@@ -1,0 +1,3 @@
+[submodule "packages/client/src/locales"]
+	path = packages/client/src/locales
+	url = https://github.com/strikechat/translations

@@ -18,7 +18,7 @@ export const Modal: React.FC = () => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black opacity-30"></div>
+                        <div className="fixed inset-0 bg-black opacity-30" onClick={hideModal}></div>
                     </TransitionChild>
 
                     <span className="inline-block h-screen align-middle" aria-hidden="true">
