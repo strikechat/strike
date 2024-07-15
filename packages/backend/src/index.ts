@@ -3,7 +3,7 @@ import { config } from 'dotenv';
 import { Logger } from './modules/common/utils/Logger';
 import { Database } from './modules/database';
 import { getUserFromToken, setupPassport } from './modules/auth/passport';
-
+import cors from 'cors';
 config();
 
 const app = express();
@@ -11,6 +11,9 @@ const app = express();
 setupPassport();
 
 app.use(express.json());
+app.use(cors({
+  origin: "*"
+}));
 app.use(getUserFromToken);
 
 import AuthRoutes from './modules/auth/routes';

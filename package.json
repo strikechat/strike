@@ -8,7 +8,8 @@
     "lerna": "^6.6.2"
   },
   "scripts": {
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "*.{js,ts,tsx,json,md}": [
