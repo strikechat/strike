@@ -22,4 +22,13 @@ export class UserController {
             console.log(e);
         }
     }
+
+    static async getServers() {
+        try {
+            const res = await AxiosInstance.get('/server/@me');
+            return res.data.servers;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }

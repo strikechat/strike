@@ -3,7 +3,7 @@ import { UserController } from "../../lib/UserController"
 
 export const App = () => {
     const [user, setUser] = useState<any>({})
-    
+
     const getCurrentUserData = async () => {
         setUser(await UserController.me())
     }
@@ -14,7 +14,7 @@ export const App = () => {
 
     return (
         <>
-            {user.username}
+        {JSON.stringify(user)}
         </>
     )
 }
