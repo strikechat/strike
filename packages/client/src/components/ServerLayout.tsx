@@ -57,6 +57,7 @@ export const ServerLayout = () => {
     const [channels, setChannels] = useState<any[]>([]);
     const [server, setServer] = useState<any>({});
     const cachedUser = useCachedUser();
+    const {t} = useTranslation();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -89,7 +90,7 @@ export const ServerLayout = () => {
                                 </span>
                             </div>
                             <div className="text-xl text-gray-300">
-                                <Tooltip content="Open settings" position="top">
+                            <Tooltip content={t('app.user_box.open_settings')} position="top">
                                     <FaCog />
                                 </Tooltip>
                             </div>
