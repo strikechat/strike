@@ -17,6 +17,7 @@ export class UserController {
     static async me() {
         try {
             const res = await AxiosInstance.get('/auth/@me');
+            localStorage.setItem('user-cache', JSON.stringify(res.data.user));
             return res.data.user;
         } catch (e) {
             console.log(e);

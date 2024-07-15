@@ -2,30 +2,45 @@ import React, { useEffect, useRef } from 'react';
 import { MessageController } from '../lib/MessageController';
 import { useParams } from 'react-router-dom';
 import { TbMessagePin } from 'react-icons/tb';
+import { ChannelTypeIcons } from '../lib/utils/ChannelTypeIcons';
+import { AxiosInstance } from '../lib/AxiosInstance';
 
 export const ChannelView = () => {
     const { serverId, channelId } = useParams();
     const [messages, setMessages] = React.useState<any[]>([]);
-    const [skip, setSkip] = React.useState(0);
+    const [channel, setChannel] = React.useState<any>({});
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    
 
-    if (!serverId || !channelId) {
-        return null;
-    }
+    useEffect(() => {
+        if (!serverId || !channelId) {
+            return;
+        }
 
-    const fetchMessages = async () => {
-        const newMessages = await MessageController.fetchMessages(serverId, channelId, skip);
-        setMessages((prevMessages) => {
-            const filteredMessages = newMessages.filter((newMessage: any) => !prevMessages.some(prevMessage => prevMessage._id === newMessage._id));
-            const mergedMessages = [...prevMessages, ...filteredMessages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-            return mergedMessages;
-        });
-        setSkip((prev) => prev + 50);
-    }
+        const fetchChannel = async () => {
+            try {
+                const res = await AxiosInstance.get(`/server/${serverId}/channels/${channelId}`);
+                setChannel(res.data.channel);
+            } catch (error) {
+                // Obsługa błędów
+            }
+        }
+
+        const fetchMessages = async () => {
+            try {
+                const newMessages = await MessageController.fetchMessages(serverId, channelId, 0); // Ustawienie skip na 0
+                setMessages(newMessages);
+            } catch (error) {
+                // Obsługa błędów
+            }
+        }
+
+        fetchChannel();
+        fetchMessages();
+
+    }, [serverId, channelId]);
 
     const handleSendMessage = async (target: any) => {
-        const res = await MessageController.sendMessage(target.value, serverId, channelId);
+        const res = await MessageController.sendMessage(target.value, serverId!, channelId!);
 
         if (res) {
             setMessages([...messages, res]);
@@ -39,19 +54,22 @@ export const ChannelView = () => {
     }
 
     useEffect(() => {
-        fetchMessages();
-    }, [])
-
-    useEffect(() => {
         scrollToBottom();
     }, [messages])
+
+    if (!serverId || !channelId) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col h-full bg-gray-800 text-white">
             <div className="relative flex justify-between items-center p-4 border-b border-gray-700">
                 <div>
-                    <h1 className="text-xl font-bold">#{channelId}</h1>
-                    <h2 className="text-gray-500">Na przyszłość jeżeli będzie topic to tutaj</h2>
+                    <div className="flex flex-row items-center align-center gap-2">
+                        <span className="text-xl font-bold">{ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]}</span>
+                        <h1 className="text-xl font-bold">{channel.name}</h1>
+                    </div>
+                    <h2 className="text-gray-500">TODO: Channel topic </h2>
                 </div>
                 <div className="flex items-center space-x-2">
                     <div className="relative group">
@@ -59,7 +77,7 @@ export const ChannelView = () => {
                             <TbMessagePin className="w-6 h-6" />
                         </a>
                         <div className="absolute right-0 mt-2 w-64 p-4 bg-gray-900 border border-gray-800 shadow-lg rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                            <h3 className="text-lg font-semibold mb-2">Przypięte wiadomości</h3>
+                            <h3 className="text-lg font-semibold mb-2">Pinned messages</h3>
                             <ul className="list-disc list-inside text-gray-300">
                                 {/* TODO: Change logic */}
                                 {messages.filter((message) => message.pinned).map((message) => (
@@ -91,7 +109,7 @@ export const ChannelView = () => {
 
                 {messages.map((message, index) => {
                     const previousMessage = messages[index - 1];
-                    const showAvatar = !previousMessage || previousMessage.author.id !== message.author.id;
+                    const showAvatar = !previousMessage || previousMessage.author._id !== message.author._id;
                     const showDateDivider = !previousMessage || new Date(previousMessage.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
 
                     return (
@@ -111,7 +129,7 @@ export const ChannelView = () => {
                                             <div className="font-bold">{message.author.username}</div>
                                         )}
                                         <div>{message.content}</div>
-                                        
+
                                     </div>
                                 </div>
                             </div>

@@ -153,8 +153,7 @@ export class ServerController {
 
             if (
                 !serverId ||
-                !server ||
-                server.owner.toString() !== user._id.toString()
+                !server
             )
                 return res.status(404).json({ message: 'Server not found' });
 
@@ -179,11 +178,37 @@ export class ServerController {
                 user: user._id,
             });
 
-            if(!serverId || !server || !member)
+            if (!serverId || !server || !member)
                 return res.status(404).json({ message: 'Server not found' });
 
             return res.status(200).json({ server });
         } catch (error) {
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+
+    public static async getChannelById(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+            const channelId = req.params.channelId;
+
+            const server = await ServerModel.findById(serverId);
+
+            if (!serverId || !server)
+                return res.status(404).json({ message: 'Server not found' });
+
+            const channel = await ServerChannelModel.findById(channelId);
+
+            if (!channelId || !channel)
+                return res.status(404).json({ message: 'Channel not found' });
+
+            return res.status(200).json({ channel });
+        } catch (e) {
+            Logger.error(String(e));
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
