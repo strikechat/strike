@@ -168,4 +168,23 @@ export class ServerController {
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
+
+    public static async me(req: Request, res: Response): Promise<Response> {
+        try {
+            const serverId = req.params.serverId;
+            const user = req.user as unknown as User;
+            const server = await ServerModel.findById(serverId);
+            const member = await ServerMemberModel.findOne({
+                server: serverId,
+                user: user._id,
+            });
+
+            if(!serverId || !server || !member)
+                return res.status(404).json({ message: 'Server not found' });
+
+            return res.status(200).json({ server });
+        } catch (error) {
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 }

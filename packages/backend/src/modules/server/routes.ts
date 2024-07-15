@@ -11,5 +11,6 @@ router.get('/@me', ServerController.getAllCurrentUserServers);
 router.delete('/:serverId', ServerController.deleteServer);
 router.post('/:serverId/channels', ServerController.createServerChannel);
 router.get('/:serverId/channels', ServerController.getAllGuildChannels);
+router.get('/:serverId/@me', ServerController.me);
 
 export default router;
