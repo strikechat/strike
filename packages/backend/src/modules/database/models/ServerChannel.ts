@@ -21,3 +21,4 @@ class ServerChannel {
 
 export const ServerChannelModel = getModelForClass(ServerChannel);
 export default ServerChannelModel;
+export { ServerChannel }
