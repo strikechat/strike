@@ -9,7 +9,7 @@
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview",
         "update-locales": "git submodule update --remote --merge",
-        "push-locales": "cd ./public/locales && git add . && git commit -m \"i18n: update translation strings\" && git push && cd -"
+        "push-locales": "cd ./public/locales && git add . && git commit -m \"i18n: update translation strings\" && git push && cd ../../"
     },
     "dependencies": {
         "@headlessui/react": "^2.1.2",
