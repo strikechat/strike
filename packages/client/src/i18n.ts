@@ -11,7 +11,7 @@ i18n
     fallbackLng: 'en',
     fallbackNS: 'translation',
     saveMissing: true,
-    debug: true,
+    debug: false,
     interpolation: {
       escapeValue: false,
     },
