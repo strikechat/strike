@@ -30,6 +30,8 @@ const Sidebar = () => {
             }).catch((err) => {
                 console.log(err);
             })
+
+            setServerName('');
         })
     }
 
@@ -41,7 +43,9 @@ const Sidebar = () => {
         <div className="sidebar bg-gray-900 text-white h-full w-25">
             {servers?.map((server) => (
                 <Link to={`/server/${server._id}`} className="block py-2 px-4 hover:bg-gray-800">
-                    <img className='rounded-full' src={PlaceholderImage.getSrc(50, 50, PlaceholderImage.getFirstLetters(server.name))} />
+                    <Tooltip content={server.name} position='right'>
+                        <img className='rounded-full' src={PlaceholderImage.getSrc(50, 50, PlaceholderImage.getFirstLetters(server.name))} />
+                    </Tooltip>
                 </Link>
             ))}
             <Tooltip content={t('app.sidebar.create_new_server')} position='right'>
