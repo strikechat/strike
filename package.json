@@ -15,5 +15,8 @@
     "*.{js,ts,tsx,json,md}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5"
   }
 }

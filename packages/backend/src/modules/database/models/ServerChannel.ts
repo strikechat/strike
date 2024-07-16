@@ -1,4 +1,4 @@
-import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, prop, Ref, Severity } from '@typegoose/typegoose';
 import mongoose from 'mongoose';
 import { Server } from './Server';
 import { ChannelType } from '@enums/channels/ChannelType';
@@ -9,7 +9,7 @@ class ServerChannel {
     @prop({ required: true })
     public name!: string;
 
-    @prop({ required: true })
+    @prop({ required: true, allowMixed: Severity.ALLOW })
     public server!: Ref<Server>;
 
     @prop({ default: Date.now })

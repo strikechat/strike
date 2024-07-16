@@ -1,4 +1,4 @@
-import { getModelForClass, prop, Ref } from '@typegoose/typegoose';
+import { getModelForClass, prop, Ref, Severity } from '@typegoose/typegoose';
 import { User } from './User';
 import { Server } from './Server';
 import { Invite } from './Invite';
@@ -13,7 +13,7 @@ export class ServerMember {
     @prop({ default: Date.now })
     joinedAt!: Date;
 
-    @prop({ default: null })
+    @prop({ default: null, allowMixed: Severity.ALLOW })
     usedInvite!: Ref<Invite> | null; 
 }
 

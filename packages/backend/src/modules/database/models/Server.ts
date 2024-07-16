@@ -1,4 +1,10 @@
-import { getModelForClass, prop, pre, Ref } from '@typegoose/typegoose';
+import {
+    getModelForClass,
+    prop,
+    pre,
+    Ref,
+    Severity,
+} from '@typegoose/typegoose';
 import mongoose from 'mongoose';
 import { User } from './User';
 import { ServerFeature } from '@enums/server/ServerFeature';
@@ -14,7 +20,7 @@ class Server {
     @prop({ required: true, default: Date.now })
     public createdAt!: Date;
 
-    @prop({ required: true, default: [] })
+    @prop({ required: true, default: [], allowMixed: Severity.ALLOW })
     public features!: ServerFeature[];
 }
 
