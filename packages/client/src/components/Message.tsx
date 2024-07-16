@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { InviteController } from "../lib/InviteController";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useTranslation } from "react-i18next";
+import toast from "react-hot-toast";
 
 const INVITE_REGEX = /strike.gg\/invite\/([a-zA-Z0-9]{6,64})/;
 

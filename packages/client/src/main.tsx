@@ -12,6 +12,7 @@ import { ModalProvider } from './lib/context/ModalContext.tsx';
 import { Modal } from './components/Modal.tsx';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n.ts';
+import { Toaster } from 'react-hot-toast';
 
 const routes = createBrowserRouter([
   {
@@ -54,6 +55,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <I18nextProvider i18n={i18n}>
       <ModalProvider>
+        <Toaster />
         <Modal />
         <RouterProvider router={routes} />
       </ModalProvider>
