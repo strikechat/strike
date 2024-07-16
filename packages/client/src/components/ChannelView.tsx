@@ -12,6 +12,7 @@ import Tooltip from './Tooltip';
 import { InviteController } from '../lib/InviteController';
 import { PlaceholderImage } from '../lib/PlaceholderImage';
 import { Message } from './Message';
+import { useSocket } from '../lib/context/SocketContext';
 
 const INVITE_REGEX = /strike.gg\/invite\/([a-zA-Z0-9]{6,64})/;
 
@@ -20,6 +21,7 @@ export const ChannelView = () => {
     const [messages, setMessages] = useState<any[]>([]);
     const [channel, setChannel] = useState<any>({});
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { socket } = useSocket();
 
     useEffect(() => {
         if (!serverId || !channelId) return;
@@ -40,15 +42,31 @@ export const ChannelView = () => {
 
         fetchChannel();
         fetchMessages();
-    }, [serverId, channelId]);
+
+        socket?.on('MESSAGE_CREATE', handleMessageCreate);
+
+        return () => {
+            socket?.off('MESSAGE_CREATE', handleMessageCreate);
+        };
+
+    }, [serverId, channelId, socket]);
+
+    const handleMessageCreate = (data: any) => {
+        if(data.channel !== channelId) return;
+        setMessages(prevMessages => [...prevMessages, data]);
+        scrollToBottom();
+    };
+    
 
     const handleSendMessage = async (target: any) => {
-        const res = await MessageController.sendMessage(target.value, serverId!, channelId!);
-        if (res) {
-            setMessages([...messages, res]);
-            target.value = '';
-            scrollToBottom();
-        }
+        socket?.emit('MESSAGE_CREATE', { content: target.value, serverId, channelId });
+        target.value = '';
+        // const res = await MessageController.sendMessage(target.value, serverId!, channelId!);
+        // if (res) {
+            // setMessages([...messages, res]);
+            // target.value = '';
+            // scrollToBottom();
+        // }
     }
 
     const scrollToBottom = () => {
@@ -69,7 +87,7 @@ export const ChannelView = () => {
                         <span className="text-xl font-bold">{ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]}</span>
                         <h1 className="text-xl font-bold">{channel.name}</h1>
                     </div>
-                <h2 className="text-gray-500">{(!channel.topic || channel.topic == '') ? "No topic set" : channel.topic}</h2>
+                    <h2 className="text-gray-500">{(!channel.topic || channel.topic == '') ? "No topic set" : channel.topic}</h2>
                 </div>
                 <div className="relative group">
                     <a className="text-gray-500 cursor-pointer" href="#" id="pin-icon">

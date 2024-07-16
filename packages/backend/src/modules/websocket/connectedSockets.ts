@@ -1,0 +1,1 @@
+export const ConnectedSockets = new Map<string, any>()

@@ -5,6 +5,7 @@ export const verifyJWT = (socket: Socket, next: (err?: any) => void) => {
     const token = socket.handshake.auth.token
         ? socket.handshake.auth.token.split(' ')[1]
         : null;
+
     if (!token) {
         return next(new Error('Authentication error: Token missing'));
     }
@@ -14,7 +15,7 @@ export const verifyJWT = (socket: Socket, next: (err?: any) => void) => {
             return next(new Error('Authentication error: Invalid token'));
         }
 
-        (socket as any).user = decoded.user;
+        (socket as any).user = decoded;
 
         next();
     });

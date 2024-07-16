@@ -14,7 +14,7 @@ export const App = () => {
 
     return (
         <>
-        {JSON.stringify(user)}
+            {JSON.stringify(user)}
         </>
     )
 }

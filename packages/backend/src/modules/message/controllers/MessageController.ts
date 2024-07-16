@@ -5,6 +5,8 @@ import { ServerChannel } from '@models/ServerChannel';
 import mongoose from 'mongoose';
 import { Logger } from '@utils/Logger';
 import ServerMemberModel from '@models/ServerMember';
+import { io } from 'src';
+import { MESSAGE_CREATE } from 'src/modules/websocket/events/MESSAGE_CREATE';
 
 export class MessageController {
 
@@ -24,8 +26,8 @@ export class MessageController {
                 channel: new mongoose.Types.ObjectId(channelId) 
             })
             .populate('author', '-password -email')
-            .skip(parseInt(skip as string))
-            .limit(parseInt(limit as string))
+            // .skip(parseInt(skip as string))
+            // .limit(parseInt(limit as string))
             .exec();
             
             return res.status(200).json({ messages });
@@ -55,6 +57,8 @@ export class MessageController {
 
             await message.save();
             await message.populate('author', '-email -password');
+
+            io.to(serverId).emit(MESSAGE_CREATE, message);
 
             return res.status(201).json({ message });
         } catch(e) {
@@ -113,7 +117,7 @@ export class MessageController {
             message.pinned = !message.pinned;
             await message.save();
 
-            await MessageModel.create({
+            const systemMessage = new MessageModel({
                 author: null,
                 isSystem: true,
                 content: `${user.username} ${message.pinned ? 'pinned' : 'unpinned'} message.`,
@@ -122,6 +126,9 @@ export class MessageController {
                 createdAt: new Date(),
                 pinned: false
             })
+
+            await systemMessage.save();
+            io.to(message.server.toString()).emit(MESSAGE_CREATE, systemMessage);
 
             return res.status(200).json({ message })
         } catch(e) {

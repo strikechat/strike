@@ -14,7 +14,6 @@ const server = http.createServer(app);
 const io = new SocketIOServer(server, {
     cors: {
         origin: '*',
-        methods: ['GET', 'POST'],
     },
 });
 
@@ -34,6 +33,11 @@ import MessageRoutes from './modules/message/routes';
 import InviteRoutes from './modules/invite/routes';
 import { User } from '@models/User';
 import { verifyJWT } from './modules/websocket/verifyJWT';
+import {
+    MESSAGE_CREATE,
+    MessageCreate,
+} from './modules/websocket/events/MESSAGE_CREATE';
+import ServerMemberModel from '@models/ServerMember';
 
 app.use('/auth', AuthRoutes);
 app.use('/server', ServerRoutes);
@@ -45,27 +49,45 @@ io.use((socket: Socket, next) => {
     if (!token) {
         return next(new Error('Authentication error: Token missing'));
     }
-});
-
-io.on('connection', (socket: Socket) => {
-    verifyJWT(socket, (err) => {
-        if (err) {
-            Logger.error(`Socket authentication error: ${err.message}`);
-            socket.disconnect(true);
-        } else {
-            const user = (socket as any).user as User;
-            Logger.info(`${user.username} connected to websocket`);
-
-            socket.on('message-create', async (data: any) => {
-                console.log('message-create', data);
-            });
-        }
-    });
+    next();
 });
 
 server.listen(process.env.STRIKE_API_PORT ?? 3000, async () => {
+    io.listen(3000);
     Logger.info(
         `Server is running on port ${process.env.STRIKE_API_PORT ?? 3000}`,
     );
+    io.on('connection', async (socket: Socket) => {
+        verifyJWT(socket, async (err) => {
+            if (err) {
+                Logger.error(`Socket authentication error: ${err.message}`);
+                socket.disconnect(true);
+            } else {
+                //TODO: Fix typing
+                const user = (socket as any).user as any;
+                Logger.info(
+                    `${user.username} connected to websocket. Assigning to room: ${user.id}`,
+                );
+                socket.join(user.id.toString());
+
+                const userGuilds = await ServerMemberModel.find({
+                    user: user.id,
+                });
+
+                for (const guild of userGuilds) {
+                    Logger.info(
+                        `Adding ${user.username} to room: ${guild.server}`,
+                    );
+                    socket.join(guild.server.toString());
+                }
+
+                socket.on(MESSAGE_CREATE, async (data: any) => {
+                    await MessageCreate(io, socket, data);
+                });
+            }
+        });
+    });
     await new Database().connect();
 });
+
+export { io };

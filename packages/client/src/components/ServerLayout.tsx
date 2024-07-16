@@ -11,9 +11,10 @@ import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useModal } from "../lib/context/ModalContext";
 import { useTranslation } from "react-i18next";
-import { InviteController } from "../lib/InviteController";
 import toast from "react-hot-toast";
 import ContextMenu, { ContextMenuItem } from "./ContextMenu";
+import { useSocket } from "../lib/context/SocketContext";
+import { InviteController } from "../lib/InviteController";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
     const { showModal, hideModal } = useModal();
@@ -130,6 +131,7 @@ export const ServerLayout = () => {
     useEffect(() => {
         fetchData();
     }, [serverId]);
+    
 
     const showEditTopicModal = () => {
         let topic = '';
@@ -151,7 +153,7 @@ export const ServerLayout = () => {
                     await ServerController.updateChannel(serverId!, channelId!, { topic });
                     fetchData();
                     toast(t('app.edit_channel_topic.success'), { icon: '🎉' });
-                    
+
                     window.location.href = `/server/${serverId}/channel/${channelId}`;
                     hideModal();
                 } catch {
@@ -160,8 +162,6 @@ export const ServerLayout = () => {
             }
         );
     };
-
-
 
     return (
         server.name && (
@@ -211,3 +211,5 @@ export const ServerLayout = () => {
         )
     );
 };
+
+export default ServerLayout;
