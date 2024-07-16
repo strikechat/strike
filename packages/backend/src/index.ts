@@ -19,10 +19,12 @@ app.use(getUserFromToken);
 import AuthRoutes from './modules/auth/routes';
 import ServerRoutes from './modules/server/routes';
 import MessageRoutes from './modules/message/routes';
+import InviteRoutes from './modules/invite/routes';
 
 app.use('/auth', AuthRoutes);
 app.use('/server', ServerRoutes);
 app.use('/messages', MessageRoutes);
+app.use('/invite', InviteRoutes);
 
 app.listen(process.env.STRIKE_API_PORT ?? 3000, async () => {
   Logger.info(`Server is running on port ${process.env.STRIKE_API_PORT ?? 3000}`);

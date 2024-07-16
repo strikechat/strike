@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { JSXElementConstructor, useEffect, useRef, useState } from 'react';
 import { MessageController } from '../lib/MessageController';
 import { useParams } from 'react-router-dom';
 import { TbMessagePin } from 'react-icons/tb';
@@ -9,6 +9,11 @@ import { FaHammer, FaKeyboard, FaMapPin } from 'react-icons/fa6';
 import ContextMenu, { ContextMenuItem } from './ContextMenu';
 import { BsRobot } from 'react-icons/bs';
 import Tooltip from './Tooltip';
+import { InviteController } from '../lib/InviteController';
+import { PlaceholderImage } from '../lib/PlaceholderImage';
+import { Message } from './Message';
+
+const INVITE_REGEX = /strike.gg\/invite\/([a-zA-Z0-9]{6,64})/;
 
 export const ChannelView = () => {
     const { serverId, channelId } = useParams();
@@ -115,7 +120,7 @@ export const ChannelView = () => {
                                         <>
                                             <ContextMenuItem
                                                 onClick={async () => { await MessageController.pinMessage(message._id) }}>
-                                            <FaMapPin /> {message.pinned ? 'Unpin' : 'Pin'} message
+                                                <FaMapPin /> {message.pinned ? 'Unpin' : 'Pin'} message
                                             </ContextMenuItem>
                                         </>
                                     }>
@@ -130,14 +135,14 @@ export const ChannelView = () => {
                                                             <MenuButton>{message.author.username}</MenuButton>
                                                             <MenuItems className="p-2 absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none">
                                                                 <MenuItem>
-                                                                    <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-gray-400 flex items-center gap-2 w-full" onClick={() => navigator.clipboard.writeText(message.author._id)}>
+                                                                    <button className="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-gray-400 flex items-center gap-2 w-full" onClick={() => navigator.clipboard.writeText(message.author._id)}>
                                                                         <FaKeyboard /> Copy ID
                                                                     </button>
                                                                 </MenuItem>
                                                             </MenuItems>
                                                         </Menu>
                                                     )}
-                                                    <div>{message.content}</div>
+                                                    <Message message={message} />
                                                 </div>
                                             </div>
                                         </div>

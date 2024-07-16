@@ -11,10 +11,33 @@ import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useModal } from "../lib/context/ModalContext";
 import { useTranslation } from "react-i18next";
+import { InviteController } from "../lib/InviteController";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
     const { showModal } = useModal();
     const { t } = useTranslation();
+    const { serverId } = useParams();
+
+    const showCreateInviteModal = async () => {
+        const date = new Date(new Date().setDate(new Date().getHours() + 24));
+        const code = await InviteController.createInvite(serverId!, 1000, date);
+
+        showModal(
+            <>
+                <h1 className="text-2xl font-bold mb-2">{t('app.create_invite.invite')}</h1>
+                <p className="text-gray-500 mb-4 text-sm">{t('app.create_invite.description')}</p>
+                <div className="relative">
+                    <input 
+                        type="text" 
+                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500" 
+                        value={`https://strike.gg/invite/${code}`}
+                        readOnly
+                    />
+                    <button className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white text-sm rounded-lg px-4 py-2" onClick={() => navigator.clipboard.writeText(`https://strike.gg/invite/${code}`)}>Skopiuj</button>
+                </div>
+            </>
+        )
+    }
 
     return (
         <Menu as="div" className="py-4 px-2 bg-gradient-to-bl from-gray-800 to-gray-900">
@@ -35,7 +58,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
             <MenuItems className="absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none">
                 <div className="py-1">
                     <MenuItem>
-                        <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full">
+                        <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full" onClick={showCreateInviteModal}>
                             <MdWavingHand /> {t('app.server_header.actions.create_invite')}
                         </button>
                     </MenuItem>

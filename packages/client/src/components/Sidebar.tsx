@@ -38,7 +38,7 @@ const Sidebar = () => {
                     <img className='rounded-full' src={PlaceholderImage.getSrc(50, 50, PlaceholderImage.getFirstLetters(server.name))} />
                 </Link>
             ))}
-            <Tooltip content={t('app.sidebar.create_new_server')} position='right'>
+            <Tooltip content={t('app.sidebar.create_new_server')}>
                 <button className="block py-2 px-4 hover:bg-gray-800 text-5xl text-center text-[#5c5a5b]" onClick={showCreateServerModal}>
                     <FaPlusCircle />
                 </button>
