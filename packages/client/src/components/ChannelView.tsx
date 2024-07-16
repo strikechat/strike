@@ -98,14 +98,16 @@ export const ChannelView = () => {
                 ) : (
                     messages.map((message, index) => {
                         const previousMessage = messages[index - 1];
-                        const showAvatar = !previousMessage || previousMessage.author?._id !== message.author?._id;
                         const showDateDivider = !previousMessage || new Date(previousMessage.createdAt).toDateString() !== new Date(message.createdAt).toDateString();
+                        const showAvatar = !previousMessage || previousMessage.author?._id !== message.author?._id || showDateDivider;
 
                         return (
                             <div key={message._id}>
                                 {showDateDivider && (
-                                    <div className="text-center text-gray-500 my-4">
-                                        {new Date(message.createdAt).toDateString()}
+                                    <div className="flex items-center my-4">
+                                        <div className="flex-grow border-t border-gray-700"></div>
+                                        <span className="mx-4 text-gray-600">{new Date(message.createdAt).toDateString()}</span>
+                                        <div className="flex-grow border-t border-gray-700"></div>
                                     </div>
                                 )}
                                 {!message.isSystem ? (
