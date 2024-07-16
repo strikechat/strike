@@ -5,7 +5,7 @@ import { ChannelTypeIcons } from "../lib/utils/ChannelTypeIcons";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { FaChevronDown, FaCog, FaDoorOpen, FaRegTrashAlt } from "react-icons/fa";
 import { useCachedUser } from "../lib/hooks/useCachedUser";
-import { MdOutlineTopic, MdWavingHand } from "react-icons/md";
+import { MdOutlineChangeCircle, MdOutlineTopic, MdWavingHand } from "react-icons/md";
 import { FaBoltLightning, FaHashtag } from "react-icons/fa6";
 import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
@@ -131,7 +131,7 @@ export const ServerLayout = () => {
     useEffect(() => {
         fetchData();
     }, [serverId]);
-    
+
 
     const showEditTopicModal = () => {
         let topic = '';
@@ -163,6 +163,36 @@ export const ServerLayout = () => {
         );
     };
 
+    const showEditChannelNameModal = () => {
+        let name = '';
+        showModal(
+            <>
+                <h1 className="text-2xl font-bold mb-2">{t('app.edit_channel_name.title')}</h1>
+                <p className="text-gray-500 mb-4 text-sm">{t('app.edit_channel_name.description')}</p>
+                <div className="relative">
+                    <input
+                        type="text"
+                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder={t('app.edit_channel_name.placeholder')}
+                        onChange={(e) => (name = e.target.value)}
+                    />
+                </div>
+            </>,
+            async () => {
+                try {
+                    await ServerController.updateChannel(serverId!, channelId!, { name });
+                    fetchData();
+                    toast(t('app.edit_channel_name.success'), { icon: '🎉' });
+
+                    window.location.href = `/server/${serverId}/channel/${channelId}`;
+                    hideModal();
+                } catch {
+                    toast(t('app.edit_channel_name.error'), { icon: '🙁' });
+                }
+            }
+        );
+    };
+
     return (
         server.name && (
             <div className="flex h-screen">
@@ -172,9 +202,15 @@ export const ServerLayout = () => {
                         <div className={`block py-2 px-4 hover:bg-gray-800 ${channel._id === channelId ? "bg-black/30" : ""}`}>
                             <ContextMenu menuItems={
                                 [
-                                    <ContextMenuItem key={"edit_topic"} onClick={showEditTopicModal}>
-                                        <MdOutlineTopic /> {t('app.edit_channel_topic.title')}
-                                    </ContextMenuItem>
+                                    <>
+                                        <ContextMenuItem key={"edit_topic"} onClick={showEditChannelNameModal}>
+                                            <MdOutlineChangeCircle /> {t('app.edit_channel_name.title')}
+                                        </ContextMenuItem>
+                                        <ContextMenuItem key={"edit_topic"} onClick={showEditTopicModal}>
+                                            <MdOutlineTopic /> {t('app.edit_channel_topic.title')}
+                                        </ContextMenuItem>
+
+                                    </>
                                 ]
                             }>
                                 <Link
