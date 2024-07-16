@@ -48,9 +48,11 @@ const renderInviteEmbed = async (code: string, t: any, fetchServers: () => Promi
         window.location.href = `/server/${res.serverId}/channel/${res.channelId}`;
     }
 
+    const validInvite = invite && new Date(invite.expiresAt) > new Date() && invite.uses < invite.maxUses;
+
     return (
         <>
-            {invite ? (
+            {validInvite ? (
                 <div className="p-4 bg-gray-700 rounded-lg flex items-center w-96">
                     <img className='rounded-full w-10 h-10' src={PlaceholderImage.getSrc(64, 64, PlaceholderImage.getFirstLetters(invite.server.name))} />
                     <div className="ml-4">
