@@ -1,5 +1,7 @@
 import InviteModel from '@models/Invite';
+import MessageModel from '@models/Message';
 import ServerModel from '@models/Server';
+import ServerChannelModel from '@models/ServerChannel';
 import ServerMemberModel from '@models/ServerMember';
 import { User } from '@models/User';
 import { Logger } from '@utils/Logger';
@@ -7,13 +9,18 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 export class InviteController {
-
-    public static async getInvite(req: Request, res: Response): Promise<Response> {
+    public static async getInvite(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
         try {
             const { inviteId } = req.params;
-            if (!inviteId) return res.status(400).json({ message: 'Bad Request' });
+            if (!inviteId)
+                return res.status(400).json({ message: 'Bad Request' });
 
-            const invite = await InviteModel.findOne({ code: inviteId }).populate('server');
+            const invite = await InviteModel.findOne({
+                code: inviteId,
+            }).populate('server');
             return res.status(200).json({ invite });
         } catch (e) {
             Logger.error(String(e));
@@ -21,16 +28,22 @@ export class InviteController {
         }
     }
 
-    public static async deleteInvite(req: Request, res: Response): Promise<Response> {
+    public static async deleteInvite(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
         try {
             const user = req.user as unknown as User;
             const { inviteId } = req.params;
-            if (!inviteId) return res.status(400).json({ message: 'Bad Request' });
+            if (!inviteId)
+                return res.status(400).json({ message: 'Bad Request' });
 
             const invite = await InviteModel.findOne({ _id: inviteId });
-            if (!invite) return res.status(404).json({ message: 'Invite not found' });
-            if (invite.author.toString() !== user._id.toString()) return res.status(403).json({ message: 'Forbidden' });
-            
+            if (!invite)
+                return res.status(404).json({ message: 'Invite not found' });
+            if (invite.author.toString() !== user._id.toString())
+                return res.status(403).json({ message: 'Forbidden' });
+
             await invite.deleteOne();
             return res.status(200).json({ invite });
         } catch (e) {
@@ -39,20 +52,35 @@ export class InviteController {
         }
     }
 
-    public static async acceptInvite(req: Request, res: Response): Promise<Response> {
+    public static async acceptInvite(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
         try {
             const user = req.user as unknown as User;
             const { inviteId } = req.params;
-            if (!inviteId) return res.status(400).json({ message: 'Bad Request' });
+            if (!inviteId)
+                return res.status(400).json({ message: 'Bad Request' });
 
             const invite = await InviteModel.findOne({ code: inviteId });
-            if (!invite) return res.status(404).json({ message: 'Invite not found' });
-            if (invite.uses >= invite.maxUses) return res.status(400).json({ message: 'Max uses reached' });
-            if (invite.expiresAt < new Date()) return res.status(400).json({ message: 'Invite expired' });
+            if (!invite)
+                return res.status(404).json({ message: 'Invite not found' });
+            if (invite.uses >= invite.maxUses)
+                return res.status(400).json({ message: 'Max uses reached' });
+            if (invite.expiresAt < new Date())
+                return res.status(400).json({ message: 'Invite expired' });
 
-            const serverMember = await ServerMemberModel.findOne({ user, server: new mongoose.Types.ObjectId(invite.server._id) });
-            if (serverMember) return res.status(400).json({ message: 'You already have access to this server' });
-        
+            const serverMember = await ServerMemberModel.findOne({
+                user,
+                server: new mongoose.Types.ObjectId(invite.server._id),
+            });
+            if (serverMember)
+                return res
+                    .status(400)
+                    .json({
+                        message: 'You already have access to this server',
+                    });
+
             const member = new ServerMemberModel({
                 server: new mongoose.Types.ObjectId(invite.server._id),
                 user: new mongoose.Types.ObjectId(user._id),
@@ -61,30 +89,56 @@ export class InviteController {
             await member.save();
 
             await invite.updateOne({ $inc: { uses: 1 } });
-            
-            return res.status(200).json({ member });
+
+            const serverChannels = await ServerChannelModel.find({
+                server: new mongoose.Types.ObjectId(invite.server._id),
+            });
+
+            if (serverChannels.length > 0) {
+                await MessageModel.create({
+                    author: null,
+                    channel: serverChannels[0]._id,
+                    isSystem: true,
+                    server: new mongoose.Types.ObjectId(invite.server._id),
+                    content: `${user.username} has joined the server!`,
+                    createdAt: new Date(),
+                    pinned: false,
+                });
+            }
+
+            const server = await ServerModel.findOne({
+                _id: invite.server._id,
+            });
+
+            return res.status(200).json({ member, serverId: server!._id, channelId: serverChannels[0]?._id });
         } catch (e) {
             Logger.error(String(e));
             return res.status(500).json({ message: 'Internal Server Error' });
         }
     }
 
-    public static async createInvite(req: Request, res: Response): Promise<Response> {
+    public static async createInvite(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
         try {
             const user = req.user as unknown as User;
             const { serverId, maxUses, expiresAt } = req.body;
-            if (!serverId || !maxUses || !expiresAt) return res.status(400).json({ message: 'Bad Request' });
+            if (!serverId || !maxUses || !expiresAt)
+                return res.status(400).json({ message: 'Bad Request' });
 
             const server = await ServerModel.findOne({ _id: serverId });
-            if (!server) return res.status(404).json({ message: 'Server not found' });
+            if (!server)
+                return res.status(404).json({ message: 'Server not found' });
 
             const existingInvite = await InviteModel.findOne({
                 author: new mongoose.Types.ObjectId(user._id),
                 server: new mongoose.Types.ObjectId(server._id),
                 expiresAt: { $gt: new Date() },
                 uses: { $lt: maxUses },
-            })
-            if (existingInvite) return res.status(200).json({ invite: existingInvite });
+            });
+            if (existingInvite)
+                return res.status(200).json({ invite: existingInvite });
 
             let code: string;
             let codeExists: boolean;

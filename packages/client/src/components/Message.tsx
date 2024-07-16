@@ -3,6 +3,7 @@ import { InviteController } from "../lib/InviteController";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useTranslation } from "react-i18next";
 import toast from "react-hot-toast";
+import { useServer } from "../lib/context/ServerContext";
 
 const INVITE_REGEX = /strike.gg\/invite\/([a-zA-Z0-9]{6,64})/;
 
@@ -10,11 +11,12 @@ export const Message = ({ message }: { message: any }) => {
     const { t } = useTranslation();
     const match = message.content.match(INVITE_REGEX)
     const code = match && match[1];
+    const {fetchServers} = useServer();
     const [inviteEmbed, setInviteEmbed] = useState<JSX.Element | null>(null);
 
     useEffect(() => {
         if (match && code) {
-            renderInviteEmbed(code, t).then(embed => {
+        renderInviteEmbed(code, t, fetchServers).then(embed => {
                 setInviteEmbed(embed)
             }).catch(e => {
                 console.log(e);
@@ -37,11 +39,13 @@ export const Message = ({ message }: { message: any }) => {
     )
 }
 
-const renderInviteEmbed = async (code: string, t: any): Promise<JSX.Element> => {
+const renderInviteEmbed = async (code: string, t: any, fetchServers: () => Promise<void>): Promise<JSX.Element> => {
     const invite = await InviteController.fetchInvite(code);
 
     const handleClick = async (): Promise<void> => {
-        await InviteController.joinInvite(code);
+        const res = await InviteController.joinInvite(code);
+        await fetchServers();
+        window.location.href = `/server/${res.serverId}/channel/${res.channelId}`;
     }
 
     return (

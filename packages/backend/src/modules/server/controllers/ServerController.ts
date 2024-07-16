@@ -43,7 +43,7 @@ export class ServerController {
                 initialMember.save(),
             ]);
 
-            return res.status(201).json({ server });
+            return res.status(201).json({ server, channel: initialChannel });
         } catch (e) {
             if (e instanceof z.ZodError) {
                 return res.status(400).json({ errors: e.errors });
@@ -151,10 +151,7 @@ export class ServerController {
 
             const server = await ServerModel.findById(serverId);
 
-            if (
-                !serverId ||
-                !server
-            )
+            if (!serverId || !server)
                 return res.status(404).json({ message: 'Server not found' });
 
             const channels = await ServerChannelModel.find({
@@ -205,6 +202,38 @@ export class ServerController {
 
             if (!channelId || !channel)
                 return res.status(404).json({ message: 'Channel not found' });
+
+            return res.status(200).json({ channel });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+
+    public static async updateChannel(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+            const channelId = req.params.channelId;
+            const data = req.body;
+
+            const server = await ServerModel.findById(serverId);
+
+            if (!serverId || !server)
+                return res.status(404).json({ message: 'Server not found' });
+
+            if (server.owner.toString() !== user._id.toString())
+                return res.status(403).json({ message: 'Forbidden' });
+
+            const channel = await ServerChannelModel.findById(channelId);
+
+            if (!channelId || !channel)
+                return res.status(404).json({ message: 'Channel not found' });
+
+            await ServerChannelModel.findByIdAndUpdate(channelId, data);
 
             return res.status(200).json({ channel });
         } catch (e) {

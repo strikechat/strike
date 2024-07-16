@@ -17,8 +17,11 @@ class ServerChannel {
 
     @prop({ required: true })
     public type!: ChannelType;
+
+    @prop({ required: false })
+    public topic!: string;
 }
 
 export const ServerChannelModel = getModelForClass(ServerChannel);
 export default ServerChannelModel;
-export { ServerChannel }
+export { ServerChannel };
