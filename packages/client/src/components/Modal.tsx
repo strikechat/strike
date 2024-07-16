@@ -1,4 +1,4 @@
-import { Dialog, Transition, TransitionChild } from '@headlessui/react';
+import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useModal } from '../lib/context/ModalContext';
 
@@ -7,9 +7,9 @@ export const Modal: React.FC = () => {
 
     return (
         <Transition appear show={!!modalContent} as={Fragment}>
-            <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto bg-black bg-opacity-50" onClose={hideModal}>
+            <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={hideModal}>
                 <div className="min-h-screen px-4 text-center">
-                    <TransitionChild
+                    <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
                         enterFrom="opacity-0"
@@ -19,12 +19,12 @@ export const Modal: React.FC = () => {
                         leaveTo="opacity-0"
                     >
                         <div className="fixed inset-0 bg-black opacity-30" onClick={hideModal}></div>
-                    </TransitionChild>
+                    </Transition.Child>
 
                     <span className="inline-block h-screen align-middle" aria-hidden="true">
                         &#8203;
                     </span>
-                    <TransitionChild
+                    <Transition.Child
                         as={Fragment}
                         enter="ease-out duration-300"
                         enterFrom="opacity-0 scale-95"
@@ -39,7 +39,7 @@ export const Modal: React.FC = () => {
                                 {onCancel && (
                                     <button
                                         type="button"
-                                        className="mr-2 inline-flex justify-center px-4 py-2 text-sm font-medium text-red-900 bg-red-100 border border-transparent rounded-md hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
+                                        className="mr-2 inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500"
                                         onClick={onCancel}
                                     >
                                         Cancel
@@ -48,7 +48,7 @@ export const Modal: React.FC = () => {
                                 {onConfirm && (
                                     <button
                                         type="button"
-                                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-100 border border-transparent rounded-md hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-500 border border-transparent rounded-md hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
                                         onClick={onConfirm}
                                     >
                                         Confirm
@@ -56,7 +56,7 @@ export const Modal: React.FC = () => {
                                 )}
                             </div>
                         </div>
-                    </TransitionChild>
+                    </Transition.Child>
                 </div>
             </Dialog>
         </Transition>

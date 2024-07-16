@@ -10,7 +10,6 @@ import { AxiosInstance } from '../lib/AxiosInstance';
 
 const Sidebar = () => {
     const [servers, setServers] = React.useState<any[]>([]);
-    const [serverName, setServerName] = React.useState<string>('');
     const { showModal } = useModal();
     const { t } = useTranslation();
 
@@ -19,10 +18,11 @@ const Sidebar = () => {
     }
 
     const showCreateServerModal = () => {
+        let serverName = '';
         showModal(<>
             <h1 className="text-2xl font-bold mb-4">{t('app.sidebar.create_new_server')}</h1>
             <label className="block mb-2 text-sm font-medium text-white">{t('app.sidebar.server_name')}</label>
-            <input type="text" id="last_name" className="bg-gray-800 border text-white text-sm rounded-lg  block w-full p-2.5:bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" placeholder="My cool server" required onChange={(e) => setServerName(e.target.value)} />
+            <input type="text" className="bg-gray-800 border text-white text-sm rounded-lg  block w-full p-2.5:bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500" placeholder="My cool server" required onChange={(e) => serverName = e.target.value} />
         </>, () => {
             AxiosInstance.post('/server', { name: serverName }).then((res) => {
                 fetchServers();
@@ -31,7 +31,7 @@ const Sidebar = () => {
                 console.log(err);
             })
 
-            setServerName('');
+            serverName = '';
         })
     }
 

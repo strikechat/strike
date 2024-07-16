@@ -1,43 +1,43 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, ReactElement } from 'react';
 
 type ModalContextType = {
-  showModal: (content: ReactNode, onConfirm?: () => void, onCancel?: () => void) => void;
-  hideModal: () => void;
-  modalContent: ReactNode | null;
-  onConfirm?: () => void;
-  onCancel?: () => void;
+    modalContent: ReactElement | null;
+    showModal: (content: ReactElement, onConfirm?: () => void, onCancel?: () => void) => void;
+    hideModal: () => void;
+    onConfirm: (() => void) | null;
+    onCancel: (() => void) | null;
 };
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
 
-export const ModalProvider = ({ children } : any) => {
-  const [modalContent, setModalContent] = useState<ReactNode | null>(null);
-  const [onConfirm, setOnConfirm] = useState<(() => void) | undefined>();
-  const [onCancel, setOnCancel] = useState<(() => void) | undefined>();
+export const ModalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [modalContent, setModalContent] = useState<ReactElement | null>(null);
+    const [onConfirm, setOnConfirm] = useState<(() => void) | null>(null);
+    const [onCancel, setOnCancel] = useState<(() => void) | null>(null);
 
-  const showModal = (content: ReactNode, onConfirm?: () => void, onCancel?: () => void) => {
-    setModalContent(content);
-    setOnConfirm(() => onConfirm);
-    setOnCancel(() => onCancel);
-  };
+    const showModal = (content: ReactElement, onConfirm?: () => void, onCancel?: () => void) => {
+        setModalContent(content);
+        setOnConfirm(() => onConfirm || null);
+        setOnCancel(() => onCancel || null);
+    };
 
-  const hideModal = () => {
-    setModalContent(null);
-    setOnConfirm(undefined);
-    setOnCancel(undefined);
-  };
+    const hideModal = () => {
+        setModalContent(null);
+        setOnConfirm(null);
+        setOnCancel(null);
+    };
 
-  return (
-    <ModalContext.Provider value={{ showModal, hideModal, modalContent, onConfirm, onCancel }}>
-      {children}
-    </ModalContext.Provider>
-  );
+    return (
+        <ModalContext.Provider value={{ modalContent, showModal, hideModal, onConfirm, onCancel }}>
+            {children}
+        </ModalContext.Provider>
+    );
 };
 
-export const useModal = (): ModalContextType => {
-  const context = useContext(ModalContext);
-  if (!context) {
-    throw new Error('useModal must be used within a ModalProvider');
-  }
-  return context;
+export const useModal = () => {
+    const context = useContext(ModalContext);
+    if (!context) {
+        throw new Error('useModal must be used within a ModalProvider');
+    }
+    return context;
 };

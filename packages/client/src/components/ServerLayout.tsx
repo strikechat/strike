@@ -5,18 +5,21 @@ import { ChannelTypeIcons } from "../lib/utils/ChannelTypeIcons";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { FaChevronDown, FaCog, FaDoorOpen, FaRegTrashAlt } from "react-icons/fa";
 import { useCachedUser } from "../lib/hooks/useCachedUser";
-import { MdWavingHand } from "react-icons/md";
-import { FaBoltLightning } from "react-icons/fa6";
+import { MdOutlineTopic, MdWavingHand } from "react-icons/md";
+import { FaBoltLightning, FaHashtag } from "react-icons/fa6";
 import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
 import { useModal } from "../lib/context/ModalContext";
 import { useTranslation } from "react-i18next";
 import { InviteController } from "../lib/InviteController";
+import toast from "react-hot-toast";
+import ContextMenu, { ContextMenuItem } from "./ContextMenu";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
-    const { showModal } = useModal();
+    const { showModal, hideModal } = useModal();
     const { t } = useTranslation();
     const { serverId } = useParams();
+    const [createChannelName, setCreateChannelName] = useState('');
 
     const showCreateInviteModal = async () => {
         const date = new Date(new Date().setDate(new Date().getHours() + 24));
@@ -27,15 +30,43 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                 <h1 className="text-2xl font-bold mb-2">{t('app.create_invite.invite')}</h1>
                 <p className="text-gray-500 mb-4 text-sm">{t('app.create_invite.description')}</p>
                 <div className="relative">
-                    <input 
-                        type="text" 
-                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500" 
+                    <input
+                        type="text"
+                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
                         value={`https://strike.gg/invite/${code}`}
                         readOnly
                     />
                     <button className="absolute right-1 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white text-sm rounded-lg px-4 py-2" onClick={() => navigator.clipboard.writeText(`https://strike.gg/invite/${code}`)}>Skopiuj</button>
                 </div>
             </>
+        )
+    }
+
+    const showCreateChannelModal = async () => {
+        showModal(
+            <>
+                <h1 className="text-2xl font-bold mb-2">{t('app.create_channel.title')}</h1>
+                <p className="text-gray-500 mb-4 text-sm">{t('app.create_channel.description')}</p>
+                <div className="relative">
+                    <input
+                        type="text"
+                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder={t('app.create_channel.placeholder')}
+                        onChange={(e) => setCreateChannelName(e.target.value)}
+                    />
+                </div>
+            </>,
+            () => {
+                ServerController.createChannel(serverId!, createChannelName).then((res) => {
+                    hideModal();
+                    window.location.href = `/server/${serverId}/channel/${res.data?.channel?._id}`
+                    toast(t('app.create_channel.success'), { icon: '🎉' })
+                })
+            },
+            () => {
+                setCreateChannelName('');
+                hideModal();
+            }
         )
     }
 
@@ -63,6 +94,14 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                         </button>
                     </MenuItem>
                     <hr className="border-gray-700" />
+                    {isOwner && (
+                        <MenuItem>
+                            <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2" onClick={showCreateChannelModal}>
+                                <FaHashtag /> {t('app.server_header.actions.create_channel')}
+                            </button>
+                        </MenuItem>
+                    )}
+                    <hr className="border-gray-700" />
                     <MenuItem>
                         <button className="block px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2">
                             {isOwner ? <FaRegTrashAlt /> : <FaDoorOpen />}
@@ -80,15 +119,49 @@ export const ServerLayout = () => {
     const [channels, setChannels] = useState<any[]>([]);
     const [server, setServer] = useState<any>({});
     const cachedUser = useCachedUser();
-    const {t} = useTranslation();
+    const { t } = useTranslation();
+    const { showModal, hideModal } = useModal();
+
+    const fetchData = async () => {
+        setServer(await ServerController.me(serverId!));
+        setChannels(await ServerController.getAllChannels(serverId!));
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            setServer(await ServerController.me(serverId!));
-            setChannels(await ServerController.getAllChannels(serverId!));
-        };
         fetchData();
     }, [serverId]);
+
+    const showEditTopicModal = () => {
+        let topic = '';
+        showModal(
+            <>
+                <h1 className="text-2xl font-bold mb-2">{t('app.edit_channel_topic.title')}</h1>
+                <p className="text-gray-500 mb-4 text-sm">{t('app.edit_channel_topic.description')}</p>
+                <div className="relative">
+                    <input
+                        type="text"
+                        className="bg-gray-800 border text-white text-sm rounded-lg block w-full p-2.5 pr-16 border-gray-600 placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder={t('app.edit_channel_topic.placeholder')}
+                        onChange={(e) => (topic = e.target.value)}
+                    />
+                </div>
+            </>,
+            async () => {
+                try {
+                    await ServerController.updateChannel(serverId!, channelId!, { topic });
+                    fetchData();
+                    toast(t('app.edit_channel_topic.success'), { icon: '🎉' });
+                    
+                    window.location.href = `/server/${serverId}/channel/${channelId}`;
+                    hideModal();
+                } catch {
+                    toast(t('app.edit_channel_topic.error'), { icon: '🙁' });
+                }
+            }
+        );
+    };
+
+
 
     return (
         server.name && (
@@ -96,13 +169,24 @@ export const ServerLayout = () => {
                 <div className="sidebar bg-gray-700 text-white h-full w-64">
                     <ServerMenu serverName={server.name} isOwner={cachedUser?._id === server.owner} isOfficialServer={server.features?.includes("OfficialServer")} />
                     {channels?.map((channel) => (
-                        <Link
-                            key={channel._id}
-                            to={`/server/${serverId}/channel/${channel._id}`}
-                            className={`block py-2 px-4 hover:bg-gray-800 flex flex-row items-center gap-2 ${channel._id === channelId ? "bg-black/30" : ""}`}
-                        >
-                            {ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]} {channel.name}
-                        </Link>
+                        <div className={`block py-2 px-4 hover:bg-gray-800 ${channel._id === channelId ? "bg-black/30" : ""}`}>
+                            <ContextMenu menuItems={
+                                [
+                                    <ContextMenuItem key={"edit_topic"} onClick={showEditTopicModal}>
+                                        <MdOutlineTopic /> {t('app.edit_channel_topic.title')}
+                                    </ContextMenuItem>
+                                ]
+                            }>
+                                <Link
+                                    key={channel._id}
+                                    to={`/server/${serverId}/channel/${channel._id}`}
+                                    className="flex flex-row items-center gap-2 "
+
+                                >
+                                    {ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]} {channel.name}
+                                </Link>
+                            </ContextMenu>
+                        </div>
                     ))}
                     <div className="bg-gradient-to-bl from-gray-800 to-gray-900 text-white w-64 h-[7vh] bottom-0 fixed">
                         <div className="px-3 flex items-center justify-between h-full">
@@ -113,7 +197,7 @@ export const ServerLayout = () => {
                                 </span>
                             </div>
                             <div className="text-xl text-gray-300">
-                            <Tooltip content={t('app.user_box.open_settings')} position="top">
+                                <Tooltip content={t('app.user_box.open_settings')} position="top">
                                     <FaCog />
                                 </Tooltip>
                             </div>

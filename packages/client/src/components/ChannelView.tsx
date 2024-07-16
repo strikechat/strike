@@ -69,7 +69,7 @@ export const ChannelView = () => {
                         <span className="text-xl font-bold">{ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]}</span>
                         <h1 className="text-xl font-bold">{channel.name}</h1>
                     </div>
-                    <h2 className="text-gray-500">TODO: Channel topic </h2>
+                <h2 className="text-gray-500">{(!channel.topic || channel.topic == '') ? "No topic set" : channel.topic}</h2>
                 </div>
                 <div className="relative group">
                     <a className="text-gray-500 cursor-pointer" href="#" id="pin-icon">

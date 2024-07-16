@@ -18,4 +18,30 @@ export class ServerController {
             console.log(e);
         }
     }
+
+    static async createChannel(serverId: string, name: string) {
+        try {
+            //TODO: Change type dynamically if there will be more
+            const res = await AxiosInstance.post(
+                `/server/${serverId}/channels`,
+                { name, type: 0 },
+            );
+            return res.data.channel;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    //TODO: Type
+    static async updateChannel(serverId: string, channelId: string, data: any) {
+        try {
+            const res = await AxiosInstance.patch(
+                `/server/${serverId}/channels/${channelId}`,
+                data,
+            );
+            return res.data.channel;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
