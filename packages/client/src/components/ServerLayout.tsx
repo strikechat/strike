@@ -5,7 +5,7 @@ import { ChannelTypeIcons } from "../lib/utils/ChannelTypeIcons";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import { FaChevronDown, FaCog, FaDoorOpen, FaRegTrashAlt } from "react-icons/fa";
 import { useCachedUser } from "../lib/hooks/useCachedUser";
-import { MdOutlineChangeCircle, MdOutlineTopic, MdWavingHand } from "react-icons/md";
+import { MdOutlineChangeCircle, MdOutlineTopic, MdSettings, MdWavingHand } from "react-icons/md";
 import { FaBoltLightning, FaHashtag } from "react-icons/fa6";
 import Tooltip from "./Tooltip";
 import { PlaceholderImage } from "../lib/PlaceholderImage";
@@ -71,6 +71,98 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
         )
     }
 
+    const showGuildSettingsModal = async () => {
+        let activeTab = 'overview';
+        const ranks = ['Admin', 'Moderator', 'Member'];
+      
+        showModal(
+          <>
+            <div className="inset-0 bg-opacity-75 flex items-center justify-center z-50">
+              <div className="rounded-lg w-full max-w-3xl">
+                <div className="flex justify-between items-center mb-4">
+                  <h1 className="text-2xl font-bold text-white">{t('app.server_settings.title')}</h1>
+                </div>
+      
+                <div className="flex border-b border-gray-700 mb-4">
+                  <button
+                    className={`px-4 py-2 ${activeTab === 'overview' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-400'}`}
+                    onClick={() => activeTab = 'overview'}
+                  >
+                    {t('app.server_settings.overview')}
+                  </button>
+                  <button
+                    className={`px-4 py-2 ${activeTab === 'ranks' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-400'}`}
+                    onClick={() => activeTab = 'ranks'}
+                  >
+                    {t('app.server_settings.ranks')}
+                  </button>
+                </div>
+      
+                {activeTab === 'overview' && (
+                  <div>
+                    <div className="mb-4">
+                      <label className="block text-gray-400 mb-2">{t('app.server_settings.server_name')}</label>
+                      <input
+                        type="text"
+                        className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
+                        value={serverName}
+                        // onChange={(e) => onUpdateServerName(e.target.value)}
+                      />
+                    </div>
+                    <div className="mb-4">
+                      <label className="block text-gray-400 mb-2">{t('app.server_settings.avatar')}</label>
+                      <div className="flex items-center">
+                        <img alt="Server Avatar" className="w-16 h-16 rounded-full mr-4" />
+                        <input
+                          type="file"
+                          className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
+                        //   onChange={(e) => onUpdateAvatar(e.target.files[0])}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-gray-400 mb-2">{t('app.server_settings.owner')}</label>
+                      <p className="text-white">wuuu</p>
+                    </div>
+                  </div>
+                )}
+      
+                {activeTab === 'ranks' && (
+                  <div>
+                    <div className="mb-4">
+                      <ul className="list-disc pl-5">
+                        {ranks.map((rank, index) => (
+                          <li key={index} className="text-white mb-2">{rank}</li>
+                        ))}
+                      </ul>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          className="bg-gray-700 border border-gray-600 text-white text-sm rounded-lg block w-full p-2.5"
+                          placeholder={t('app.server_settings.new_rank')}
+                          value={'new rank'}
+                        //   onChange={(e) => setNewRankName(e.target.value)}
+                        />
+                        <button
+                          className="absolute right-2 top-2 bg-blue-500 text-white rounded-lg px-3 py-1"
+                        //   onClick={() => {
+                        //     onCreateRank(newRankName);
+                        //     setNewRankName('');
+                        //   }}
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      };
+      
+
     return (
         <Menu as="div" className="py-4 px-2 bg-gradient-to-bl from-gray-800 to-gray-900">
             <MenuButton className="flex items-center justify-between w-full text-white">
@@ -90,21 +182,29 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
             <MenuItems className="absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none">
                 <div className="py-1">
                     <MenuItem>
-                        <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full" onClick={showCreateInviteModal}>
+                        <button className="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white flex flex-row items-center gap-2 w-full" onClick={showCreateInviteModal}>
                             <MdWavingHand /> {t('app.server_header.actions.create_invite')}
                         </button>
                     </MenuItem>
                     <hr className="border-gray-700" />
                     {isOwner && (
-                        <MenuItem>
-                            <button className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2" onClick={showCreateChannelModal}>
-                                <FaHashtag /> {t('app.server_header.actions.create_channel')}
-                            </button>
-                        </MenuItem>
+                        <>
+                            <MenuItem>
+                                <button className="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2" onClick={showGuildSettingsModal}>
+                                    <MdSettings /> {t('app.server_header.actions.settings')}
+                                </button>
+                            </MenuItem>
+                            <MenuItem>
+                                <button className="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2" onClick={showCreateChannelModal}>
+                                    <FaHashtag /> {t('app.server_header.actions.create_channel')}
+                                </button>
+                            </MenuItem>
+
+                        </>
                     )}
                     <hr className="border-gray-700" />
                     <MenuItem>
-                        <button className="block px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2">
+                        <button className="px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2">
                             {isOwner ? <FaRegTrashAlt /> : <FaDoorOpen />}
                             {isOwner ? t('app.server_header.actions.delete_server') : t('app.server_header.actions.leave_server')}
                         </button>
