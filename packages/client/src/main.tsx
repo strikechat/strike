@@ -15,6 +15,7 @@ import i18n from './i18n.ts';
 import { Toaster } from 'react-hot-toast';
 import { ServerProvider } from './lib/context/ServerContext.tsx';
 import SocketProvider from './lib/context/SocketContext.tsx';
+import Translations from './components/Translations.tsx';
 
 const routes = createBrowserRouter([
   {
@@ -48,6 +49,16 @@ const routes = createBrowserRouter([
             element: <ChannelView />
           }
         ]
+      }
+    ]
+  },
+  {
+    path: '/translations',
+    element: <AppLayout />,
+    children: [
+      {
+        path: '',
+        element: <Translations />,
       }
     ]
   }

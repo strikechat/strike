@@ -1,4 +1,5 @@
-import { getModelForClass, prop, pre } from '@typegoose/typegoose';
+import { UserBadge } from '@enums/user/UserBadge';
+import { getModelForClass, prop, pre, Severity } from '@typegoose/typegoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
@@ -12,10 +13,15 @@ class User {
     public _id!: mongoose.Types.ObjectId;
     @prop({ required: true })
     public username!: string;
+
     @prop({ required: true })
     public email!: string;
+
     @prop({ required: true })
     public password!: string;
+
+    @prop({ required: true, default: [], allowMixed: Severity.ALLOW })
+    public badges!: UserBadge[];
 
     public async setPassword(password: string) {
         this.password = await bcrypt.hash(password, 10);

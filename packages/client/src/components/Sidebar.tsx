@@ -1,19 +1,21 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PlaceholderImage } from '../lib/PlaceholderImage';
-import { FaPlusCircle } from 'react-icons/fa';
+import { FaLanguage, FaPlusCircle } from 'react-icons/fa';
 import Tooltip from './Tooltip';
 import { useModal } from '../lib/context/ModalContext';
 import { useTranslation } from 'react-i18next';
 import { AxiosInstance } from '../lib/AxiosInstance';
 import { useServer } from '../lib/context/ServerContext';
 import { useSocket } from '../lib/context/SocketContext';
+import { useCachedUser } from '../lib/hooks/useCachedUser';
 
 const Sidebar = () => {
     const { servers, fetchServers } = useServer();
     const { showModal } = useModal();
     const { t } = useTranslation();
     const { socket, connect, isConnected } = useSocket();
+    const user = useCachedUser();
 
     useEffect(() => {
         console.log('Fetching servers...');
@@ -67,7 +69,7 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="sidebar bg-gray-900 text-white h-full w-25">
+        <div className="sidebar bg-gray-900 text-white h-full w-25 flex flex-col">
             {servers?.map((server) => (
                 <Link to={`/server/${server._id}`} className="block py-2 px-4 hover:bg-gray-800">
                     <Tooltip content={server.name} position="right">
@@ -86,6 +88,18 @@ const Sidebar = () => {
                     <FaPlusCircle />
                 </button>
             </Tooltip>
+            {user.badges.includes("Staff") && (
+                <Link to='/translations'>
+                    <Tooltip content={t('app.sidebar.create_new_server')} position="right">
+                        <button
+                            className="block py-2 px-4 hover:bg-gray-800 text-5xl text-center text-[#5c5a5b]"
+                        >
+                            <FaLanguage />
+                        </button>
+                    </Tooltip>
+                </Link>
+            )}
+
         </div>
     );
 };
