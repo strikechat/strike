@@ -4,7 +4,14 @@ import flowbite from 'flowbite-react/tailwind';
 export default {
     content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}', 'node_modules/flowbite-react/lib/esm/**/*.js', flowbite.content()],
     theme: {
-        extend: {},
+        extend: {
+            colors: {
+                'background-primary': '#191824',
+                'background-secondary': "#1e1f2f",
+                'background-secondary-hover': "#1a1b28",
+                'background-channel-hover': "#262739",
+            },
+        },
     },
     plugins: [flowbite.plugin()],
 };

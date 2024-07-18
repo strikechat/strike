@@ -42,7 +42,7 @@ const Tooltip = ({ children, content, position = 'bottom' }: TooltipProps) => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
             >
-                <div className={`absolute ${positionClasses} z-10 w-max p-2 bg-gray-800 text-white text-sm font-semibold rounded shadow-lg`}>
+                <div className={`absolute ${positionClasses} z-10 w-max p-2 bg-background-secondary text-white text-sm font-semibold rounded shadow-lg`}>
                     {content}
                 </div>
             </Transition>

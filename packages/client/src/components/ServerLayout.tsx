@@ -15,6 +15,7 @@ import toast from "react-hot-toast";
 import ContextMenu, { ContextMenuItem } from "./ContextMenu";
 import { useSocket } from "../lib/context/SocketContext";
 import { InviteController } from "../lib/InviteController";
+import Divider from "./Divider.tsx";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
     const { showModal, hideModal } = useModal();
@@ -74,7 +75,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
     const showGuildSettingsModal = async () => {
         let activeTab = 'overview';
         const ranks = ['Admin', 'Moderator', 'Member'];
-      
+
         showModal(
           <>
             <div className="inset-0 bg-opacity-75 flex items-center justify-center z-50">
@@ -82,7 +83,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                 <div className="flex justify-between items-center mb-4">
                   <h1 className="text-2xl font-bold text-white">{t('app.server_settings.title')}</h1>
                 </div>
-      
+
                 <div className="flex border-b border-gray-700 mb-4">
                   <button
                     className={`px-4 py-2 ${activeTab === 'overview' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-400'}`}
@@ -97,7 +98,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                     {t('app.server_settings.ranks')}
                   </button>
                 </div>
-      
+
                 {activeTab === 'overview' && (
                   <div>
                     <div className="mb-4">
@@ -126,7 +127,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                     </div>
                   </div>
                 )}
-      
+
                 {activeTab === 'ranks' && (
                   <div>
                     <div className="mb-4">
@@ -161,10 +162,10 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
           </>
         );
       };
-      
+
 
     return (
-        <Menu as="div" className="py-4 px-2 bg-gradient-to-bl from-gray-800 to-gray-900">
+        <Menu as="div" className="py-4 px-2 bg-background-secondary rounded-lg">
             <MenuButton className="flex items-center justify-between w-full text-white">
                 <div className="flex items-center gap-2">
                     {isOfficialServer && (
@@ -296,10 +297,11 @@ export const ServerLayout = () => {
     return (
         server.name && (
             <div className="flex h-screen">
-                <div className="sidebar bg-gray-700 text-white h-full w-64">
+                <div className="sidebar bg-background-secondary text-white h-full w-64 rounded-2xl">
                     <ServerMenu serverName={server.name} isOwner={cachedUser?._id === server.owner} isOfficialServer={server.features?.includes("OfficialServer")} />
+                    <Divider />
                     {channels?.map((channel) => (
-                        <div className={`block py-2 px-4 hover:bg-gray-800 ${channel._id === channelId ? "bg-black/30" : ""}`}>
+                        <div className={`block py-2 px-4 hover:bg-background-channel-hover ${channel._id === channelId ? "bg-background-channel-hover" : ""} rounded-2xl`}>
                             <ContextMenu menuItems={
                                 [
                                     <>
@@ -324,7 +326,7 @@ export const ServerLayout = () => {
                             </ContextMenu>
                         </div>
                     ))}
-                    <div className="bg-gradient-to-bl from-gray-800 to-gray-900 text-white w-64 h-[7vh] bottom-0 fixed">
+                    <div className="bg-background-secondary rounded-2xl text-white w-64 h-[7vh] bottom-0 fixed">
                         <div className="px-3 flex items-center justify-between h-full">
                             <div className="flex items-center gap-2">
                                 <img src={PlaceholderImage.getSrc(64, 64, PlaceholderImage.getFirstLetters(cachedUser.username))} className="w-10 h-10 rounded-full" />
@@ -340,7 +342,7 @@ export const ServerLayout = () => {
                         </div>
                     </div>
                 </div>
-                <div className="flex-grow bg-gray-800 text-white">
+                <div className="flex-grow bg-background-primary text-white p-2">
                     <Outlet />
                 </div>
             </div>

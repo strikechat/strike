@@ -56,7 +56,7 @@ export const ChannelView = () => {
         setMessages(prevMessages => [...prevMessages, data]);
         scrollToBottom();
     };
-    
+
 
     const handleSendMessage = async (target: any) => {
         socket?.emit('MESSAGE_CREATE', { content: target.value, serverId, channelId });
@@ -80,7 +80,7 @@ export const ChannelView = () => {
     if (!serverId || !channelId) return null;
 
     return (
-        <div className="flex flex-col h-full bg-gray-800 text-white">
+        <div className="flex flex-col h-full bg-background-secondary text-white">
             <div className="relative flex justify-between items-center p-4 border-b border-gray-700">
                 <div>
                     <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export const ChannelView = () => {
                         <h3 className="text-lg font-semibold mb-2">Pinned messages</h3>
                         <ul className="list-disc list-inside text-gray-300">
                             {messages.filter((message) => message.pinned).map((message) => (
-                                <div className="p-4 rounded hover:bg-gray-700" key={message._id}>
+                                <div className="p-4 rounded hover:bg-background-hoover" key={message._id}>
                                     <div className="flex flex-row gap-2">
                                         <img src="https://cdn.discordapp.com/avatars/937152156379803658/a_6246465bb3b30e1fcc787390f5d9db86.gif" className="w-10 h-10 rounded-full" />
                                         <div>
@@ -134,15 +134,12 @@ export const ChannelView = () => {
                                     </div>
                                 )}
                                 {!message.isSystem ? (
-                                    <ContextMenu menuItems={
-                                        <>
-                                            <ContextMenuItem
-                                                onClick={async () => { await MessageController.pinMessage(message._id) }}>
-                                                <FaMapPin /> {message.pinned ? 'Unpin' : 'Pin'} message
-                                            </ContextMenuItem>
-                                        </>
-                                    }>
-                                        <div className="p-2 rounded hover:bg-gray-700 w-full">
+                                    <ContextMenu menuItems={[
+                                        <ContextMenuItem onClick={async () => { await MessageController.pinMessage(message._id) }}>
+                                            <FaMapPin /> {message.pinned ? 'Unpin' : 'Pin'} message
+                                        </ContextMenuItem>
+                                    ]}>
+                                        <div className="p-2 rounded hover:bg-background-secondary-hover w-full">
                                             <div className="flex flex-row gap-2">
                                                 {showAvatar && (
                                                     <img src="https://cdn.discordapp.com/avatars/937152156379803658/a_6246465bb3b30e1fcc787390f5d9db86.gif" className="w-10 h-10 rounded-full" />
@@ -154,40 +151,49 @@ export const ChannelView = () => {
                                                             <MenuItems className="p-2 absolute z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none">
                                                                 <MenuItem>
                                                                     <button className="px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-gray-400 flex items-center gap-2 w-full" onClick={() => navigator.clipboard.writeText(message.author._id)}>
-                                                                        <FaKeyboard /> Copy ID
+                                                                        <FaKeyboard /> Copy user ID
                                                                     </button>
                                                                 </MenuItem>
                                                             </MenuItems>
                                                         </Menu>
                                                     )}
-                                                    <Message message={message} />
+                                                    {/*<span className="text-gray-400 text-sm">{new Date(message.createdAt).toLocaleTimeString()}</span>*/}
+                                                    <span>{message.content}</span>
                                                 </div>
                                             </div>
                                         </div>
                                     </ContextMenu>
                                 ) : (
-                                    <Tooltip content="This is official system message">
-                                        <div className="font-bold ml-10 text-md text-gray-300 flex flex-row gap-2 align-middle items-center"><BsRobot /> {message.content}</div>
-                                    </Tooltip>
+                                    <div className="flex justify-center">
+                                        <Tooltip content="This is official system message" position='top'>
+                                            <div className="flex gap-2 items-center p-2 bg-background-primary rounded-lg my-2">
+                                                <BsRobot />
+                                                <span className="text-sm text-gray-300">{message.content}</span>
+                                            </div>
+                                        </Tooltip>
+                                    </div>
                                 )}
                             </div>
-                        )
+                        );
                     })
                 )}
                 <div ref={messagesEndRef} />
             </div>
-            <div className="p-4 border-t border-gray-700">
-                <input
-                    type="text"
-                    className="w-full p-3 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full shadow-lg focus:outline-none focus:ring-4 focus:ring-gray-700 placeholder-white"
-                    placeholder="Type a message..."
-                    autoComplete="off"
-                    autoCapitalize="off"
-                    spellCheck="false"
-                    name="message"
-                    id="message"
-                    onKeyUp={e => e.key === 'Enter' && handleSendMessage(e.currentTarget)}
-                />
+
+            <div className="sticky bottom-0 bg-background-secondary p-4">
+                <form className="flex gap-2" onSubmit={handleSendMessage}>
+                    <input
+                        type="text"
+                        className="flex-grow p-2 rounded-lg bg-background-primary text-white placeholder-gray-400"
+                        placeholder="Type your message here..."
+                    />
+                    <button
+                        type="submit"
+                        className="bg-blue-600 text-white rounded-xl p-2 hover:bg-blue-700 transition"
+                    >
+                        Send
+                    </button>
+                </form>
             </div>
         </div>
     );

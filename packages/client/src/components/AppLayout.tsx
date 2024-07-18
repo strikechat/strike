@@ -8,9 +8,9 @@ interface AppLayoutProps {
 
 export const AppLayout = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen bg-background-primary">
       <Sidebar />
-      <div className="flex-grow bg-gray-800 text-white">
+      <div className="flex-grow text-white">
         <Outlet/>
       </div>
     </div>

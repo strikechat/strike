@@ -9,6 +9,7 @@ import { AxiosInstance } from '../lib/AxiosInstance';
 import { useServer } from '../lib/context/ServerContext';
 import { useSocket } from '../lib/context/SocketContext';
 import { useCachedUser } from '../lib/hooks/useCachedUser';
+import Avatar from "./Avatar.tsx";
 
 const Sidebar = () => {
     const { servers, fetchServers } = useServer();
@@ -69,39 +70,41 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="sidebar bg-gray-900 text-white h-full w-25 flex flex-col">
+        <div className="sidebar text-white h-full w-25 flex flex-col bg-background-secondary rounded-3xl transition-all duration-300 ">
             {servers?.map((server) => (
-                <Link to={`/server/${server._id}`} className="block py-2 px-4 hover:bg-gray-800">
+                <Link
+                    to={`/server/${server._id}`}
+                    className="relative block py-2 px-4 group transition-all duration-300"
+                    key={server._id}
+                >
                     <Tooltip content={server.name} position="right">
-                        <img
-                            className="rounded-full"
-                            src={PlaceholderImage.getSrc(50, 50, PlaceholderImage.getFirstLetters(server.name))}
-                        />
+                        <Avatar text={server.name} />
                     </Tooltip>
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gray-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </Link>
             ))}
             <Tooltip content={t('app.sidebar.create_new_server')} position="right">
                 <button
-                    className="block py-2 px-4 hover:bg-gray-800 text-5xl text-center text-[#5c5a5b]"
+                    className="relative block py-2 px-4 group text-5xl text-center text-[#5c5a5b] transition-all duration-300"
                     onClick={showCreateServerModal}
                 >
                     <FaPlusCircle />
+                    <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gray-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
             </Tooltip>
             {user.badges.includes("Staff") && (
-                <Link to='/translations'>
-                    <Tooltip content={t('app.sidebar.create_new_server')} position="right">
-                        <button
-                            className="block py-2 px-4 hover:bg-gray-800 text-5xl text-center text-[#5c5a5b]"
-                        >
+                <Link to="/translations">
+                    <Tooltip content={t('app.sidebar.translations')} position="right">
+                        <button className="relative block py-2 px-4 group text-5xl text-center text-[#5c5a5b] transition-all duration-300">
                             <FaLanguage />
+                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gray-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         </button>
                     </Tooltip>
                 </Link>
             )}
-
         </div>
     );
+
 };
 
 export default Sidebar;
