@@ -16,6 +16,7 @@ import { Toaster } from 'react-hot-toast';
 import { ServerProvider } from './lib/context/ServerContext.tsx';
 import SocketProvider from './lib/context/SocketContext.tsx';
 import Translations from './components/Translations.tsx';
+import { RegisterPage } from './pages/auth/RegisterPage.tsx';
 
 const routes = createBrowserRouter([
   {
@@ -25,6 +26,10 @@ const routes = createBrowserRouter([
   {
     path: '/login',
     element: <LoginPage />
+  },
+  {
+    path: '/register',
+    element: <RegisterPage/>
   },
   {
     path: '/app',

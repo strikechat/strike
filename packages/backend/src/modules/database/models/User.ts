@@ -1,4 +1,5 @@
 import { UserBadge } from '@enums/user/UserBadge';
+import { UserStatus } from '@enums/user/UserStatus';
 import { getModelForClass, prop, pre, Severity } from '@typegoose/typegoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -22,6 +23,9 @@ class User {
 
     @prop({ required: true, default: [], allowMixed: Severity.ALLOW })
     public badges!: UserBadge[];
+
+    @prop({ required: true, default: UserStatus.Offline })
+    public status!: UserStatus;
 
     public async setPassword(password: string) {
         this.password = await bcrypt.hash(password, 10);

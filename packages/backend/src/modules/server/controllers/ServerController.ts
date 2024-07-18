@@ -10,6 +10,7 @@ import ServerMemberModel from '@models/ServerMember';
 import { Logger } from '@utils/Logger';
 import { createServerChannelSchema } from '@schemas/server/createServerChannelSchema';
 import mongoose from 'mongoose';
+import MessageModel from '@models/Message';
 
 export class ServerController {
     public static async createServer(
@@ -236,6 +237,68 @@ export class ServerController {
             await ServerChannelModel.findByIdAndUpdate(channelId, data);
 
             return res.status(200).json({ channel });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+
+    public static async getAllServerMembers(
+        req: Request,
+        res: Response
+    ) : Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+
+            const server = await ServerModel.findById(serverId);
+            const serverMember = await ServerMemberModel.findOne({
+                server: serverId,
+                user: user._id
+            });
+
+            if (!serverId || !server || !serverMember)
+                return res.status(404).json({ message: 'Server not found' });
+
+            const members = await ServerMemberModel.find({
+                server: serverId
+            }).populate('user', '-password -email');
+
+            return res.status(200).json({ members });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+
+    public static async getChannelPins(
+        req: Request,
+        res: Response
+    )
+    : Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+            const channelId = req.params.channelId;
+
+            const server = await ServerModel.findById(serverId);
+
+            if (!serverId || !server)
+                return res.status(404).json({ message: 'Server not found' });
+
+            const channel = await ServerChannelModel.findById(channelId);
+
+            if (!channelId || !channel)
+                return res.status(404).json({ message: 'Channel not found' });
+
+            const pins = await MessageModel.find({
+                server: serverId,
+                channel: channelId,
+                pinned: true
+            }).populate('user', '-password -email');
+
+            return res.status(200).json({ pins });
+
         } catch (e) {
             Logger.error(String(e));
             return res.status(500).json({ message: 'Internal Server Error' });

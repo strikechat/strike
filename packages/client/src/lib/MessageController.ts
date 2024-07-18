@@ -1,9 +1,9 @@
 import { AxiosInstance } from './AxiosInstance';
 
 export class MessageController {
-    static async fetchMessages(serverId: string, channelId: string, skip: number) {
+    static async fetchMessages(serverId: string, channelId: string, skip: number, limit = 50) {
         try {
-            const res = await AxiosInstance.get(`/messages/${serverId}/${channelId}?skip=${skip}`);
+            const res = await AxiosInstance.get(`/messages/${serverId}/${channelId}?skip=${skip}&limit=${limit}`);
             return res.data.messages;
         } catch (e) {
             console.log(e);

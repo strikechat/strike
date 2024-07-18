@@ -7,16 +7,23 @@ export const AxiosInstance = axios.create({
     },
 });
 
+const IGNORED_UNAUTHORIZED_PAGES = ['/login', '/register', '/'];
+
 AxiosInstance.interceptors.response.use(
-    response => {
+    (response) => {
         return response;
     },
-    error => {
-        if (error.response && error.response.status === 403) {
-            window.location.href = '/app';
+    (error) => {
+        if (IGNORED_UNAUTHORIZED_PAGES.includes(window.location.pathname))
+            return Promise.reject(error);
+        if (
+            error.response &&
+            (error.response.status === 403 || error.response.status === 401)
+        ) {
+            window.location.href = '/login';
         }
         return Promise.reject(error);
-    }
+    },
 );
 
 export default AxiosInstance;

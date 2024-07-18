@@ -31,13 +31,14 @@ import AuthRoutes from './modules/auth/routes';
 import ServerRoutes from './modules/server/routes';
 import MessageRoutes from './modules/message/routes';
 import InviteRoutes from './modules/invite/routes';
-import { User } from '@models/User';
+import UserModel, { User } from '@models/User';
 import { verifyJWT } from './modules/websocket/verifyJWT';
 import {
     MESSAGE_CREATE,
     MessageCreate,
 } from './modules/websocket/events/MESSAGE_CREATE';
 import ServerMemberModel from '@models/ServerMember';
+import { UserStatus } from '@enums/user/UserStatus';
 
 app.use('/auth', AuthRoutes);
 app.use('/server', ServerRoutes);
@@ -68,6 +69,18 @@ server.listen(process.env.STRIKE_API_PORT ?? 3000, async () => {
                 Logger.info(
                     `${user.username} connected to websocket. Assigning to room: ${user.id}`,
                 );
+
+                await UserModel.updateOne(
+                    {
+                        _id: user.id,
+                    },
+                    {
+                        $set: {
+                            status: UserStatus.Online,
+                        },
+                    },
+                );
+
                 socket.join(user.id.toString());
 
                 const userGuilds = await ServerMemberModel.find({
@@ -84,9 +97,23 @@ server.listen(process.env.STRIKE_API_PORT ?? 3000, async () => {
                 socket.on(MESSAGE_CREATE, async (data: any) => {
                     await MessageCreate(io, socket, data);
                 });
+
+                socket.on('disconnect', async () => {
+                    await UserModel.updateOne(
+                        {
+                            _id: user.id,
+                        },
+                        {
+                            $set: {
+                                status: UserStatus.Offline,
+                            },
+                        },
+                    );
+                });
             }
         });
     });
+
     await new Database().connect();
 });
 

@@ -14,6 +14,19 @@ export class UserController {
         }
     }
 
+    static async register(username: string, email: string, password: string) {
+        try {
+            const res = await AxiosInstance.post('/auth/register', {
+                username,
+                email,
+                password,
+            });
+            window.location.href = '/login';
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     static async me() {
         try {
             const res = await AxiosInstance.get('/auth/@me');

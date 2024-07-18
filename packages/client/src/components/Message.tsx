@@ -11,12 +11,12 @@ export const Message = ({ message }: { message: any }) => {
     const { t } = useTranslation();
     const match = message.content.match(INVITE_REGEX)
     const code = match && match[1];
-    const {fetchServers} = useServer();
+    const { fetchServers } = useServer();
     const [inviteEmbed, setInviteEmbed] = useState<JSX.Element | null>(null);
 
     useEffect(() => {
         if (match && code) {
-        renderInviteEmbed(code, t, fetchServers).then(embed => {
+            renderInviteEmbed(code, t, fetchServers).then(embed => {
                 setInviteEmbed(embed)
             }).catch(e => {
                 console.log(e);
@@ -53,7 +53,7 @@ const renderInviteEmbed = async (code: string, t: any, fetchServers: () => Promi
     return (
         <>
             {validInvite ? (
-                <div className="p-4 bg-gray-700 rounded-lg flex items-center w-96">
+                <div className="p-4 bg-background-primary rounded-lg flex items-center w-96">
                     <img className='rounded-full w-10 h-10' src={PlaceholderImage.getSrc(64, 64, PlaceholderImage.getFirstLetters(invite.server.name))} />
                     <div className="ml-4">
                         <div className="text-xl font-bold">{invite.server.name}</div>
@@ -62,7 +62,7 @@ const renderInviteEmbed = async (code: string, t: any, fetchServers: () => Promi
                     <button className="ml-auto bg-blue-600 text-white px-4 py-2 rounded" onClick={handleClick}>{t('app.message.invite.join')}</button>
                 </div>
             ) : (
-                <div className="p-4 bg-gray-700 rounded-lg flex items-center w-full">
+                <div className="p-4 bg-background-primary rounded-lg flex items-center w-full">
                     <img className='rounded-full w-10 h-10' src={PlaceholderImage.getSrc(64, 64, "?")} />
                     <div className="ml-4">
                         <div className="text-xl font-bold">{t('app.message.invalid_invite.invalid')}</div>

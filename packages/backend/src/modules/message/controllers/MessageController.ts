@@ -15,23 +15,24 @@ export class MessageController {
             const user = req.user as unknown as User;
             const { serverId, channelId } = req.params;
             const { limit = 50, skip = 0 } = req.query;
-
-            if(!serverId || !channelId) return res.status(400).json({ message: 'Bad Request' });
-
+    
+            if (!serverId || !channelId) return res.status(400).json({ message: 'Bad Request' });
+    
             const serverMember = await ServerMemberModel.findOne({ user, server: new mongoose.Types.ObjectId(serverId) });
-            if(!serverMember) return res.status(403).json({ message: 'Forbidden' });
-
-            const messages = await MessageModel.find({ 
-                server: new mongoose.Types.ObjectId(serverId), 
-                channel: new mongoose.Types.ObjectId(channelId) 
+            if (!serverMember) return res.status(403).json({ message: 'Forbidden' });
+    
+            const messages = await MessageModel.find({
+                server: new mongoose.Types.ObjectId(serverId),
+                channel: new mongoose.Types.ObjectId(channelId)
             })
             .populate('author', '-password -email')
-            // .skip(parseInt(skip as string))
-            // .limit(parseInt(limit as string))
+            .sort({ createdAt: -1 }) // sort by newest first
+            .skip(parseInt(skip as string))
+            .limit(parseInt(limit as string))
             .exec();
-            
+    
             return res.status(200).json({ messages });
-        } catch(e) {
+        } catch (e) {
             Logger.error(String(e));
             return res.status(500).json({ message: 'Internal Server Error' });
         }
@@ -129,6 +130,7 @@ export class MessageController {
 
             await systemMessage.save();
             io.to(message.server.toString()).emit(MESSAGE_CREATE, systemMessage);
+            io.to(message.server.toString()).emit("UPDATE_MESSAGE_PIN", message._id);
 
             return res.status(200).json({ message })
         } catch(e) {

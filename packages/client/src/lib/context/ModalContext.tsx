@@ -1,8 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, ReactElement } from 'react';
 
+interface ConfigOptions {
+    className?: string;
+}
+
 type ModalContextType = {
     modalContent: ReactElement | null;
-    showModal: (content: ReactElement, onConfirm?: () => void, onCancel?: () => void) => void;
+    showModal: (content: ReactElement, onConfirm?: () => void, onCancel?: () => void, options?: ConfigOptions) => void;
     hideModal: () => void;
     onConfirm: (() => void) | null;
     onCancel: (() => void) | null;

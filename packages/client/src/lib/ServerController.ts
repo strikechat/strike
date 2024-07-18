@@ -44,4 +44,13 @@ export class ServerController {
             console.log(e);
         }
     }
+
+    static async getServerMembers(serverId: string) {
+        try {
+            const res = await AxiosInstance.get(`/server/${serverId}/members`);
+            return res.data.members;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
