@@ -1,3 +1,4 @@
+import toast from 'react-hot-toast';
 import { AxiosInstance } from './AxiosInstance';
 
 export class ServerController {
@@ -51,6 +52,16 @@ export class ServerController {
             return res.data.members;
         } catch (e) {
             console.log(e);
+        }
+    }
+
+    static async deleteServer(serverId: string) {
+        try {
+            const res = await AxiosInstance.delete(`/server/${serverId}`);
+            return res.data;
+        } catch (e) {
+            console.log(e);
+            toast.error("Missing permissions!");
         }
     }
 }

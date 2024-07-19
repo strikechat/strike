@@ -17,6 +17,7 @@ import { ServerProvider } from './lib/context/ServerContext.tsx';
 import SocketProvider from './lib/context/SocketContext.tsx';
 import Translations from './components/Translations.tsx';
 import { RegisterPage } from './pages/auth/RegisterPage.tsx';
+import { ServerSettings } from './pages/app/Server/ServerSettings.tsx';
 
 const routes = createBrowserRouter([
   {
@@ -56,6 +57,10 @@ const routes = createBrowserRouter([
         ]
       }
     ]
+  },
+  {
+    path: '/server/:serverId/settings',
+    element: <ServerSettings />
   },
   {
     path: '/translations',

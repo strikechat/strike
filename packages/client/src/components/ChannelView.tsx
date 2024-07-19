@@ -167,7 +167,7 @@ export const ChannelView = () => {
                     messages.map((message, index) => {
                         const previousMessage = messages[index - 1];
                         const showDateDivider = shouldShowDateDivider(message, previousMessage);
-                        const showAvatar = !previousMessage || previousMessage.author?._id !== message.author?._id || showDateDivider || index === messages.length - 1 || previousMessage.isSystem;
+                        const showAvatar = !previousMessage || previousMessage.author?._id !== message.author?._id || showDateDivider || previousMessage.isSystem;
 
                         return (
                             <div key={message._id}>

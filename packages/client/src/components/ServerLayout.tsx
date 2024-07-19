@@ -18,11 +18,13 @@ import { InviteController } from "../lib/InviteController";
 import Divider from "./Divider.tsx";
 import { UserBox } from "./Users/UserBox.tsx";
 import UserList from "./Server/UserList.tsx";
+import { useServer } from "../lib/context/ServerContext.tsx";
 
 const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: string; isOwner: boolean, isOfficialServer: boolean }) => {
     const { showModal, hideModal } = useModal();
     const { t } = useTranslation();
     const { serverId } = useParams();
+    const {fetchServers} = useServer();
 
     const showCreateInviteModal = async () => {
         const date = new Date(new Date().setDate(new Date().getHours() + 24));
@@ -75,7 +77,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
     }
 
     const showGuildSettingsModal = async () => {
-        let activeTab = 'overview';
+        let activeTab = 'ranks';
         const ranks = ['Admin', 'Moderator', 'Member'];
 
         showModal(
@@ -95,7 +97,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                             </button>
                             <button
                                 className={`px-4 py-2 ${activeTab === 'ranks' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-400'}`}
-                                onClick={() => activeTab = 'ranks'}
+                                onClick={() => (activeTab = 'ranks')}
                             >
                                 {t('app.server_settings.ranks')}
                             </button>
@@ -165,6 +167,29 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
         );
     };
 
+    const showDeleteServerModal = async () => {
+        showModal(
+            <>
+                <h1 className="text-2xl font-bold mb-2">{t('app.delete_server.title')}</h1>
+                <p className="text-gray-500 text-sm">{t('app.delete_server.description', { serverName: serverName })}</p>
+                <i className="text-red-500 mb-4">{t('app.delete_server.note')}</i>
+                <center>
+                    <button
+                        className="bg-red-500 text-white text-sm rounded-lg px-4 py-2 mt-4 w-full"
+                        onClick={() => {
+                            ServerController.deleteServer(serverId!);
+                            hideModal();
+                            fetchServers();
+                            window.location.href = '/app';
+                        }}
+                    >
+                        {t('app.delete_server.delete')}
+                    </button>
+                </center>
+            </>
+        );
+    }
+
 
     return (
         <Menu as="div" className="py-4 px-2 bg-background-secondary rounded-lg">
@@ -207,7 +232,7 @@ const ServerMenu = ({ serverName, isOwner, isOfficialServer }: { serverName: str
                     )}
                     <hr className="border-gray-700" />
                     <MenuItem>
-                        <button className="px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2">
+                        <button className="px-4 py-2 text-sm text-red-500 hover:bg-gray-700 hover:text-white w-full flex flex-row items-center gap-2" onClick={showDeleteServerModal}>
                             {isOwner ? <FaRegTrashAlt /> : <FaDoorOpen />}
                             {isOwner ? t('app.server_header.actions.delete_server') : t('app.server_header.actions.leave_server')}
                         </button>
