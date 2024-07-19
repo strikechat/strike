@@ -214,11 +214,11 @@ export const ChannelView = () => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="sticky bottom-0 bg-background-secondary p-4">
+            <div className="sticky bottom-0 bg-background-secondary p-4 rounded-3xl">
                 <form className="flex gap-2" onSubmit={handleSendMessage}>
                     <input
                         type="text"
-                        className="flex-grow p-2 rounded-lg bg-background-primary text-white placeholder-gray-400"
+                        className="flex-grow p-2 rounded-xl bg-background-primary text-gray-400 placeholder-gray-600"
                         placeholder="Type your message here..."
                         onChange={(e) => setMessage(e.target.value)}
                         value={message}
