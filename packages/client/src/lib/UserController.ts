@@ -45,4 +45,13 @@ export class UserController {
             console.log(e);
         }
     }
+
+    static async getUserData(userId: string) {
+        try {
+            const res = await AxiosInstance.get(`/users/${userId}/profile`);
+            return res.data;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }
