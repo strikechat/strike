@@ -7,6 +7,7 @@ export class Database {
             await connect(process.env.STRIKE_MONGODB_URI ?? "mongodb://localhost:27017/strike");
             Logger.info('Connected to database');
         } catch (error) {
+            console.log(error)
             Logger.error('Unable to connect to database');
         }
     }
