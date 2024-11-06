@@ -31,6 +31,7 @@ import AuthRoutes from './modules/auth/routes';
 import ServerRoutes from './modules/server/routes';
 import MessageRoutes from './modules/message/routes';
 import InviteRoutes from './modules/invite/routes';
+import UserRoutes from './modules/users/routes';
 import UserModel, { User } from '@models/User';
 import { verifyJWT } from './modules/websocket/verifyJWT';
 import {
@@ -44,6 +45,7 @@ app.use('/auth', AuthRoutes);
 app.use('/server', ServerRoutes);
 app.use('/messages', MessageRoutes);
 app.use('/invite', InviteRoutes);
+app.use('/users', UserRoutes);
 
 io.use((socket: Socket, next) => {
     const token = socket.handshake.auth.token;

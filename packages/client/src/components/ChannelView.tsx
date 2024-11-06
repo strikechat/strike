@@ -132,7 +132,9 @@ export const ChannelView = () => {
                         <span className="text-xl font-bold">{ChannelTypeIcons[channel.type as keyof typeof ChannelTypeIcons]}</span>
                         <h1 className="text-xl font-bold">{channel.name}</h1>
                     </div>
-                    <h2 className="text-gray-500">{(!channel.topic || channel.topic == '') ? "No topic set" : channel.topic}</h2>
+                    {channel.topic || channel.topic !== '' && (
+                        <h2 className="text-gray-500">{channel.topic}</h2>
+                    )}
                 </div>
                 <div className="relative group">
                     <a className="text-gray-500 cursor-pointer" href="#" id="pin-icon">
@@ -214,11 +216,11 @@ export const ChannelView = () => {
                 <div ref={messagesEndRef} />
             </div>
 
-            <div className="sticky bottom-0 bg-background-secondary p-4">
+            <div className="sticky bottom-0 bg-background-secondary p-4 rounded-3xl">
                 <form className="flex gap-2" onSubmit={handleSendMessage}>
                     <input
                         type="text"
-                        className="flex-grow p-2 rounded-lg bg-background-primary text-white placeholder-gray-400"
+                        className="flex-grow p-2 rounded-xl bg-background-primary text-gray-400 placeholder-gray-600"
                         placeholder="Type your message here..."
                         onChange={(e) => setMessage(e.target.value)}
                         value={message}

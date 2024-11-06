@@ -10,6 +10,10 @@ interface MenuItemProps {
     children: ReactNode;
 }
 
+export const ContextMenuSpacer: React.FC = () => {
+    return <div className="flex justify-center text-sm h-1 w-full bg-background-secondary px-2 opacity-20" />;
+}
+
 export const ContextMenuItem: React.FC<MenuItemProps> = ({ onClick, children }) => {
     return (
         <div
@@ -59,7 +63,9 @@ const ContextMenu: React.FC<ContextMenuProps> = ({ children, menuItems }) => {
                     className="fixed z-10 w-56 rounded-md bg-background-primary shadow-lg ring-1 ring-black ring-opacity-5 transition focus:outline-none"
                     style={{ top: position.y, left: position.x }}
                 >
-                    {menuItems}
+                    <div className="py-1">
+                        {menuItems}
+                    </div>
                 </div>
             )}
         </div>
