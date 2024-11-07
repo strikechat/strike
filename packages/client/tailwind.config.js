@@ -10,8 +10,10 @@ export default {
                 'background-secondary': "#1e1f2f",
                 'background-secondary-hover': "#1a1b28",
                 'background-channel-hover': "#262739",
-                'danger': 'bg-red-600',
-                'danger-hover': 'bg-red-700',
+                'danger': '#dc2626',
+                'danger-hover': '#b91c1c',
+                'link': '#3b82f6',
+                'link-hover': '#2563eb'
             },
         },
     },
