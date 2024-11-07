@@ -1,4 +1,4 @@
-import React from "react";
+import { Fragment } from "react";
 import { strategies } from "./Messages/strategies";
 
 export const Message = ({ message }: { message: any }) => {
@@ -24,5 +24,5 @@ export const Message = ({ message }: { message: any }) => {
         });
     });
 
-    return <div>{elements.map((el, idx) => <React.Fragment key={idx}>{el}</React.Fragment>)}</div>;
+    return <div>{elements.map((el, idx) => <Fragment key={idx}>{el}</Fragment>)}</div>;
 }
