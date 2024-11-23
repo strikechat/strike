@@ -11,6 +11,9 @@ import { Logger } from '@utils/Logger';
 import { createServerChannelSchema } from '@schemas/server/createServerChannelSchema';
 import mongoose from 'mongoose';
 import MessageModel from '@models/Message';
+import RoleModel from '@models/Role';
+import { PermissionUtilities } from '@utils/PermissionUtilities';
+import { Permissions } from '@enums/server/Permission';
 
 export class ServerController {
     public static async createServer(
@@ -245,8 +248,8 @@ export class ServerController {
 
     public static async getAllServerMembers(
         req: Request,
-        res: Response
-    ) : Promise<Response> {
+        res: Response,
+    ): Promise<Response> {
         try {
             const user = req.user as unknown as User;
             const serverId = req.params.serverId;
@@ -254,14 +257,14 @@ export class ServerController {
             const server = await ServerModel.findById(serverId);
             const serverMember = await ServerMemberModel.findOne({
                 server: serverId,
-                user: user._id
+                user: user._id,
             });
 
             if (!serverId || !server || !serverMember)
                 return res.status(404).json({ message: 'Server not found' });
 
             const members = await ServerMemberModel.find({
-                server: serverId
+                server: serverId,
             }).populate('user', '-password -email');
 
             return res.status(200).json({ members });
@@ -273,9 +276,8 @@ export class ServerController {
 
     public static async getChannelPins(
         req: Request,
-        res: Response
-    )
-    : Promise<Response> {
+        res: Response,
+    ): Promise<Response> {
         try {
             const user = req.user as unknown as User;
             const serverId = req.params.serverId;
@@ -294,11 +296,75 @@ export class ServerController {
             const pins = await MessageModel.find({
                 server: serverId,
                 channel: channelId,
-                pinned: true
+                pinned: true,
             }).populate('user', '-password -email');
 
             return res.status(200).json({ pins });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
 
+    public static async getAllRoles(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+
+            const server = await ServerModel.findById(serverId);
+
+            if (!serverId || !server)
+                return res.status(404).json({ message: 'Server not found' });
+
+            const roles = await RoleModel.find({
+                server: serverId,
+            });
+
+            return res.status(200).json({ roles });
+        } catch (e) {
+            Logger.error(String(e));
+            return res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
+
+    //TODO: Validate role model
+    public static async createRole(
+        req: Request,
+        res: Response,
+    ): Promise<Response> {
+        try {
+            const user = req.user as unknown as User;
+            const serverId = req.params.serverId;
+            const data = req.body;
+
+            const server = await ServerModel.findById(serverId);
+            const member = await ServerMemberModel.findOne({
+                server: serverId,
+                user: user._id,
+            });
+
+            if (!serverId || !server || !member)
+                return res.status(404).json({ message: 'Server not found' });
+
+            if (
+                !PermissionUtilities.hasPermissionInGuild(
+                    member._id.toString(),
+                    [Permissions.ManageRoles],
+                )
+            )
+                return res.status(403).json({ message: 'Forbidden' });
+
+            const role = await RoleModel.create({
+                color: data.color,
+                name: data.name,
+                server: serverId,
+                permissions: []
+            });
+
+            return res.status(201).json({ role });
         } catch (e) {
             Logger.error(String(e));
             return res.status(500).json({ message: 'Internal Server Error' });

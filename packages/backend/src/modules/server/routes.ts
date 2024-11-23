@@ -15,5 +15,7 @@ router.get('/:serverId/@me', ServerController.me);
 router.get('/:serverId/channels/:channelId', ServerController.getChannelById);
 router.patch('/:serverId/channels/:channelId', ServerController.updateChannel);
 router.get('/:serverId/members', ServerController.getAllServerMembers);
+router.get('/:serverId/roles', ServerController.getAllRoles);
+router.post('/:serverId/roles', ServerController.createRole);
 
 export default router;

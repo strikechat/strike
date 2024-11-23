@@ -64,4 +64,22 @@ export class ServerController {
             toast.error("Missing permissions!");
         }
     }
+
+    static async getRoles(serverId: string) {
+        try {
+            const res = await AxiosInstance.get(`/server/${serverId}/roles`);
+            return res.data.roles;
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    static async createRole(serverId: string, data: any) {
+        try {
+            const res = await AxiosInstance.post(`/server/${serverId}/roles`, data);
+            return res.data.role;
+        } catch (e) {
+            console.log(e);
+        }
+    }
 }

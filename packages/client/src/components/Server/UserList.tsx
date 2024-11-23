@@ -9,6 +9,7 @@ import Tooltip from "../Tooltip";
 import ContextMenu, { ContextMenuItem, ContextMenuSpacer } from "../ContextMenu";
 import { useModal } from "../../lib/context/ModalContext";
 import UserProfile from "../UserProfile";
+import toast from 'react-hot-toast';
 
 const UserList = () => {
     const { serverId } = useParams();
@@ -31,8 +32,7 @@ const UserList = () => {
 
     const handleCopyId = (id: string) => {
         navigator.clipboard.writeText(id);
-        // temporary Xd
-        alert('User ID copied to clipboard!');
+        toast.success('User ID copied!');
     };
 
     const handleOpenProfile = (member: any) => {
@@ -63,7 +63,7 @@ const UserList = () => {
                             <span className={`absolute bottom-1 left-7 w-3 h-3 ${member.user.status == 0 ? "bg-gray-500" : "bg-green-500"} rounded-full border-2 border-background-secondary`}></span>
                             <div className="flex flex-row items-center align-middle gap-2">
                                 <span className="font-bold">{member.user.username}</span>
-                                {serverCache.owner === member.user._id ? <Tooltip content={t('app.user_list.server_owner')} position="bottom"><FaCrown className="text-yellow-400" /></Tooltip> : null}
+                                {serverCache?.owner === member.user._id ? <Tooltip content={t('app.user_list.server_owner')} position="bottom"><FaCrown className="text-yellow-400" /></Tooltip> : null}
                             </div>
                         </div>
                     </ContextMenu>

@@ -76,11 +76,17 @@ const routes = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
+    <Toaster position="bottom-right" toastOptions={{
+      style: {
+        borderRadius: '2rem',
+        background: '#191824',
+        color: '#fff',
+      },
+    }}/>
     <I18nextProvider i18n={i18n}>
       <SocketProvider>
         <ServerProvider>
           <ModalProvider>
-            <Toaster />
             <Modal />
             <RouterProvider router={routes} />
           </ModalProvider>

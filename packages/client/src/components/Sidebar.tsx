@@ -92,7 +92,7 @@ const Sidebar = () => {
                     <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-gray-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </button>
             </Tooltip>
-            {user.badges?.includes("Staff") && (
+            {user?.badges?.includes("Staff") && (
                 <Link to="/translations">
                     <Tooltip content={t('app.sidebar.translations')} position="right">
                         <button className="relative block py-2 px-4 group text-5xl text-center text-[#5c5a5b] transition-all duration-300">

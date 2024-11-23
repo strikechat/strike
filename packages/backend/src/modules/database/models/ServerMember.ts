@@ -2,6 +2,7 @@ import { getModelForClass, prop, Ref, Severity } from '@typegoose/typegoose';
 import { User } from './User';
 import { Server } from './Server';
 import { Invite } from './Invite';
+import { Role } from './Role';
 
 export class ServerMember {
     @prop({ required: true, ref: () => User })
@@ -15,6 +16,9 @@ export class ServerMember {
 
     @prop({ default: null, allowMixed: Severity.ALLOW })
     usedInvite!: Ref<Invite> | null; 
+
+    @prop({ default: false, allowMixed: Severity.ALLOW })
+    roles!: Ref<Role>[];
 }
 
 const ServerMemberModel = getModelForClass(ServerMember);
