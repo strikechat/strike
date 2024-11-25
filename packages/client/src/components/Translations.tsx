@@ -12,143 +12,235 @@ interface TranslationNode {
 }
 
 const Translations: React.FC = () => {
-    const [data, setData] = useState<TranslationNode>({ name: 'translations', pl: '', en: '', children: [] });
+    const [translations, setTranslations] = useState<TranslationNode[]>([]);
     const [selectedNode, setSelectedNode] = useState<TranslationNode | null>(null);
-    const [translations, setTranslations] = useState<{ pl: string; en: string }>({ pl: '', en: '' });
+    const [plValue, setPlValue] = useState('');
+    const [enValue, setEnValue] = useState('');
 
     useEffect(() => {
-        const plTranslations = {
-            "app": {
-                "test": "testowanie",
-                "greeting": "cześć",
-                "farewell": "do widzenia",
-                "user": {
-                    "name": "nazwa",
-                    "profile": "profil"
-                }
-            }
-        };
-
-        const enTranslations = {
-            "app": {
-                "test": "testing",
-                "greeting": "hello",
-                "farewell": "goodbye",
-                "user": {
-                    "name": "name",
-                    "profile": "profile"
-                }
-            }
-        };
-
-        const transformData = (key: string, plValue: any, enValue: any): TranslationNode => {
-            const node: TranslationNode = { name: key, pl: plValue, en: enValue, children: [] };
-            if (typeof plValue === 'object' && typeof enValue === 'object') {
-                node.children = Object.keys(plValue).map(childKey => transformData(childKey, plValue[childKey], enValue[childKey]));
-            }
-            return node;
-        };
-
-        const rootNode = transformData('translations', plTranslations, enTranslations);
-        setData(rootNode);
+        loadTranslations();
     }, []);
 
-    const handleSelect = (node: TranslationNode) => {
-        if (!node.children || node.children.length === 0) {
-            if (selectedNode) {
-                selectedNode.active = false;
-            }
-            node.active = true;
-            setSelectedNode(node);
-            setTranslations({ pl: node.pl, en: node.en });
-            setData(Object.assign({}, data));
-        }
-    };
-
-    const handleInputChange = (lang: 'pl' | 'en', value: string) => {
-        setTranslations({ ...translations, [lang]: value });
-    };
-
-    const handleSave = () => {
-        const updateNode = (node: TranslationNode, key: string, value: { pl: string; en: string }): TranslationNode => {
-            if (node.name === key) {
-                node.pl = value.pl;
-                node.en = value.en;
-            }
-            if (node.children) {
-                node.children = node.children.map(child => updateNode(child, key, value));
-            }
-            return node;
-        };
-
+    useEffect(() => {
         if (selectedNode) {
-            const updatedData = updateNode(data, selectedNode.name, translations);
-            setData(updatedData);
-            toast.success('Translations saved successfully!');
+            setPlValue(selectedNode.pl || '');
+            setEnValue(selectedNode.en || '');
+        }
+    }, [selectedNode]);
+
+    const loadTranslations = async () => {
+        try {
+            const [plResponse, enResponse] = await Promise.all([
+                fetch('/locales/pl/translation.json'),
+                fetch('/locales/en/translation.json')
+            ]);
+
+            const [plData, enData] = await Promise.all([
+                plResponse.json(),
+                enResponse.json()
+            ]);
+            
+            const mergedTranslations = mergeTranslations(plData, enData);
+            setTranslations(mergedTranslations);
+        } catch (error) {
+            console.error('Error loading translations:', error);
+            toast.error('Failed to load translations');
         }
     };
 
-    const handleAdd = (parentNode: TranslationNode) => {
-        const newNode: TranslationNode = { name: 'new_key', pl: '', en: '', children: [] };
-        if (!parentNode.children) {
-            parentNode.children = [];
-        }
-        parentNode.children.push(newNode);
-        setData(Object.assign({}, data));
-        toast.success('New key added successfully!');
-    };
+    const mergeTranslations = (plData: any, enData: any, parentKey = ''): TranslationNode[] => {
+        const allKeys = new Set([...Object.keys(plData), ...Object.keys(enData)]);
+        return Array.from(allKeys).map(key => {
+            const fullKey = parentKey ? `${parentKey}.${key}` : key;
+            const plValue = plData[key];
+            const enValue = enData[key];
 
-    const handleEditName = (node: TranslationNode, newName: string) => {
-        const updateNodeName = (node: TranslationNode, key: string, newName: string): TranslationNode => {
-            if (node.name === key) {
-                node.name = newName;
+            if (typeof plValue === 'object' || typeof enValue === 'object') {
+                return {
+                    name: key,
+                    pl: '',
+                    en: '',
+                    children: mergeTranslations(
+                        plValue || {},
+                        enValue || {},
+                        fullKey
+                    )
+                };
             }
+
+            return {
+                name: key,
+                pl: plValue || '',
+                en: enValue || ''
+            };
+        });
+    };
+
+    const flattenTranslations = (nodes: TranslationNode[], parentKey = ''): { pl: Record<string, string>, en: Record<string, string> } => {
+        const result: { pl: Record<string, string>, en: Record<string, string> } = { pl: {}, en: {} };
+        
+        const flattenNode = (node: TranslationNode, currentKey: string) => {
             if (node.children) {
-                node.children = node.children.map(child => updateNodeName(child, key, newName));
+                node.children.forEach(childNode => {
+                    const childKey = currentKey ? `${currentKey}.${childNode.name}` : childNode.name;
+                    flattenNode(childNode, childKey);
+                });
+            } else {
+                result.pl[currentKey] = node.pl;
+                result.en[currentKey] = node.en;
             }
-            return node;
         };
 
-        const updatedData = updateNodeName(data, node.name, newName);
-        setData(updatedData);
-        toast.success('Name updated successfully!');
+        nodes.forEach(node => {
+            const currentKey = parentKey ? `${parentKey}.${node.name}` : node.name;
+            flattenNode(node, currentKey);
+        });
+        
+        return result;
+    };
+
+    const saveTranslations = async () => {
+        try {
+            // const { pl, en } = flattenTranslations(translations);
+            
+            // TODO: Send translations to backend
+            // POST, body: JSON.stringify({ pl, en })        
+            throw new Error('Failed to save translations');
+        } catch (error) {
+            console.error('Error saving translations:', error);
+            toast.error('Failed to save translations');
+        }
+    };
+
+    const handleNodeSelect = (node: TranslationNode) => {
+        setSelectedNode(node);
+    };
+
+    const updateTranslationValue = (value: string, language: 'pl' | 'en') => {
+        if (!selectedNode) return;
+
+        const updateNodeInTree = (nodes: TranslationNode[]): TranslationNode[] => {
+            return nodes.map(node => {
+                if (node === selectedNode) {
+                    return { ...node, [language]: value };
+                }
+                if (node.children) {
+                    return { ...node, children: updateNodeInTree(node.children) };
+                }
+                return node;
+            });
+        };
+
+        setTranslations(updateNodeInTree(translations));
+        if (language === 'pl') setPlValue(value);
+        if (language === 'en') setEnValue(value);
+    };
+
+    const handleRename = (node: TranslationNode, newName: string) => {
+        const updateNodeName = (nodes: TranslationNode[]): TranslationNode[] => {
+            return nodes.map(n => {
+                if (n === node) {
+                    return { ...n, name: newName };
+                }
+                if (n.children) {
+                    return { ...n, children: updateNodeName(n.children) };
+                }
+                return n;
+            });
+        };
+
+        setTranslations(updateNodeName(translations));
+    };
+
+    const handleAddNode = (parentNode: TranslationNode) => {
+        const newNode: TranslationNode = {
+            name: 'new_key',
+            pl: '',
+            en: '',
+            children: []
+        };
+
+        const addNodeToTree = (nodes: TranslationNode[]): TranslationNode[] => {
+            return nodes.map(node => {
+                if (node === parentNode) {
+                    return {
+                        ...node,
+                        children: [...(node.children || []), newNode]
+                    };
+                }
+                if (node.children) {
+                    return { ...node, children: addNodeToTree(node.children) };
+                }
+                return node;
+            });
+        };
+
+        setTranslations(addNodeToTree(translations));
+    };
+
+    const handleAddRootNode = () => {
+        const newNode: TranslationNode = {
+            name: 'new_root_key',
+            pl: '',
+            en: '',
+            children: []
+        };
+        setTranslations([...translations, newNode]);
     };
 
     return (
-        <div className="min-h-screen bg-gray-900 text-gray-200 p-8">
-            <h1 className="text-2xl font-bold mb-4">Translations</h1>
-            <div className="flex">
-                <div className="flex-1 border p-4 rounded bg-gray-800">
-                    <TreeNode node={data} onSelect={handleSelect} onAdd={handleAdd} onEditName={handleEditName} />
+        <div className="flex h-full">
+            <div className="w-1/3 h-full overflow-auto bg-background-primary p-4 border-r border-gray-700">
+                <div className="mb-4">
+                    <button
+                        onClick={handleAddRootNode}
+                        className="w-full px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white flex items-center justify-center"
+                    >
+                        <span className="mr-2">Add Root Key</span>
+                    </button>
                 </div>
-                <div className="flex-1 border p-4 rounded bg-gray-800 ml-4">
-                    {selectedNode ? (
+                {translations.map((node, index) => (
+                    <TreeNode
+                        key={`${node.name}-${index}`}
+                        node={node}
+                        onSelect={handleNodeSelect}
+                        selectedNode={selectedNode}
+                        onRename={handleRename}
+                        onAddNode={handleAddNode}
+                    />
+                ))}
+            </div>
+            <div className="flex-1 p-4 bg-background-secondary">
+                {selectedNode ? (
+                    <div className="space-y-4">
                         <div>
-                            <h2 className="text-xl font-semibold mb-4">{selectedNode.name}</h2>
-                            <div className="mb-4">
-                                <label className="block mb-1 font-semibold">Polish</label>
-                                <input
-                                    type="text"
-                                    value={translations.pl}
-                                    onChange={(e) => handleInputChange('pl', e.target.value)}
-                                    className="border p-2 w-full bg-gray-700 text-gray-200"
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label className="block mb-1 font-semibold">English</label>
-                                <input
-                                    type="text"
-                                    value={translations.en}
-                                    onChange={(e) => handleInputChange('en', e.target.value)}
-                                    className="border p-2 w-full bg-gray-700 text-gray-200"
-                                />
-                            </div>
-                            <button onClick={handleSave} className="mt-2 p-2 bg-blue-500 text-white">Save</button>
+                            <label className="block text-sm font-medium mb-2">Polish Translation</label>
+                            <textarea
+                                value={plValue}
+                                onChange={(e) => updateTranslationValue(e.target.value, 'pl')}
+                                className="w-full h-32 p-2 bg-background-primary rounded border border-gray-700 text-white"
+                            />
                         </div>
-                    ) : (
-                        <div className="text-gray-500">Select a node to edit its translations</div>
-                    )}
-                </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-2">English Translation</label>
+                            <textarea
+                                value={enValue}
+                                onChange={(e) => updateTranslationValue(e.target.value, 'en')}
+                                className="w-full h-32 p-2 bg-background-primary rounded border border-gray-700 text-white"
+                            />
+                        </div>
+                        <button
+                            onClick={saveTranslations}
+                            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white"
+                        >
+                            Save Changes
+                        </button>
+                    </div>
+                ) : (
+                    <div className="text-center text-gray-500">
+                        Select a translation key to edit
+                    </div>
+                )}
             </div>
         </div>
     );
